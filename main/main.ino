@@ -9,6 +9,7 @@ const int right = 7; // Right mouse button
 
 int leftState, middleState, rightState; // If button is pressed or not
 
+//Initial setup, run on boot
 void setup() {
   // Initialize the mouse buttons as inputs:
   pinMode(left, INPUT);
@@ -20,8 +21,8 @@ void setup() {
 
 }
 
+// Run indefinitely on loop
 void loop() {
-  // put your main code here, to run repeatedly:
 
   // read the state of the pushbutton value:
   leftState = digitalRead(left);
