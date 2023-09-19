@@ -15,13 +15,15 @@ const int right = 7; // Right mouse button
 
 int leftState, middleState, rightState; // If button is pressed or not
 
-byte byte_1, byte_2, byte_3;
+byte byte_1, byte_2, byte_3; // 3 bytes for PS/2 packet
 
 //Initial setup, run on boot
 void setup() {
 
   //Initiate Serial communication for debugging
   Serial.begin(9600); //9600 bits/second (Baud rate)
+
+  delay(500); // 500 ms delay for PS/2 standard
 
   // Initialize the mouse buttons as inputs:
   pinMode(left, INPUT);
