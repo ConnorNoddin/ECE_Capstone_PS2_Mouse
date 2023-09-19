@@ -28,9 +28,6 @@ void setup() {
   pinMode(middle, INPUT);
   pinMode(right, INPUT);
 
-  // Built in LED for debugging
-  pinMode(LED_BUILTIN, OUTPUT);
-
   byte_1 = byte_1 & 0x08; // Bit 3 is always 1
 
 }
@@ -47,12 +44,9 @@ void loop() {
   if (leftState == HIGH) {
     // Debugging
     Serial.print("Left is high!");
-    digitalWrite(LED_BUILTIN, HIGH);
-
   } else {
     // Debugging
     Serial.print("Left is low!");
-    digitalWrite(LED_BUILTIN, LOW);
   }
 
   delay(100); // Delay measured in ms
