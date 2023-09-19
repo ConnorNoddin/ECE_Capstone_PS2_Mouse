@@ -11,6 +11,10 @@ int leftState, middleState, rightState; // If button is pressed or not
 
 //Initial setup, run on boot
 void setup() {
+
+  //Initiate Serial communication.
+  Serial.begin(9600); //9600 its bits/second (Baud rate)
+
   // Initialize the mouse buttons as inputs:
   pinMode(left, INPUT);
   pinMode(middle, INPUT);
