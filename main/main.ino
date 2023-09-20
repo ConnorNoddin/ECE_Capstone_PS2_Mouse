@@ -9,9 +9,9 @@
 #define RESET 0xff
 
 // GPIO pin assignments for mouse buttons
-const int left = 5;  // Left mouse button
-const int middle = 6;    // Middle mouse button
-const int right = 7; // Right mouse button
+const int left = 2;  // Left mouse button
+const int middle = 3;    // Middle mouse button
+const int right = 4; // Right mouse button
 
 int leftState, middleState, rightState; // If button is pressed or not
 
@@ -45,11 +45,29 @@ void loop() {
   // Check the value of the left mouse button
   if (leftState == HIGH) {
     // Debugging
-    Serial.print("Left is high!");
+    Serial.print("Left is high!\n");
   } else {
     // Debugging
-    Serial.print("Left is low!");
+    Serial.print("Left is low!\n");
   }
 
-  delay(100); // Delay measured in ms
+    // Check the value of the right mouse button
+  if (rightState == HIGH) {
+    // Debugging
+    Serial.print("Right is high!\n");
+  } else {
+    // Debugging
+    Serial.print("Right is low!\n");
+  }
+
+    // Check the value of the middle mouse button
+  if (middleState == HIGH) {
+    // Debugging
+    Serial.print("Middle is high!\n");
+  } else {
+    // Debugging
+    Serial.print("Middle is low!\n");
+  }
+
+  delay(1000); // Delay measured in ms
 }
