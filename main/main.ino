@@ -105,13 +105,11 @@ int ps2_clock(void)
 int ps2_dwrite(byte ps2_Data)
 {
 
-  int p; // Parity check
+  int p = parity(ps2_Data); //Gets parity before bit shift
 
   // First bit is always 0
   digitalWrite(DATA, LOW);
   ps2_clock();
-
-  p = parity(ps2_Data); //Gets parity before bit shift
 
   //Send entire byte, LSB first
   for (int i = 0; i < 8; i++) {
@@ -122,7 +120,7 @@ int ps2_dwrite(byte ps2_Data)
   }
 
   // Check parity
-  if (parity == 1) {
+  if (p == 1) {
     digitalWrite(DATA, LOW); //Low if odd number of ones
     ps2_clock();
   } else {
