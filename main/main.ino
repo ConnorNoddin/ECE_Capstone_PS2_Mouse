@@ -142,12 +142,11 @@ int parity(byte p_check)
 
   for (int i = 0; i < 8; i++) {
     if ((p_check & 0x01) == 0x01) {
-      ones++;
+      ones++; //Adds to parity if lowest bit is 1
     }
-    p_check = p_check >> 1;
-}
+    p_check = p_check >> 1; //Gets next bit
+  }
  
-
   return (ones & 0x01); //Checks if parity is odd
 }
 
