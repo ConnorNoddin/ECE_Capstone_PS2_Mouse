@@ -16,15 +16,19 @@
 #define STATUS_REQ 0xE9
 #define ACK 0xFA
 
-
 // GPIO pin assignments for mouse buttons
-const int left = 2;  // Left mouse button
-const int middle = 3;    // Middle mouse button
-const int right = 4; // Right mouse button
+const int LEFT = 2;  // Left mouse button
+const int MIDDLE = 3;    // Middle mouse button
+const int RIGHT = 4; // Right mouse button
 
 // GPIO pin assignments for PS/2 connection
-const int DATA = 5;
-const int CLK = 6;
+const int DATA_IN = 5;
+const int CLK_IN = 6;
+const int DATA_OUT = 7;
+const int CLK_OUT = 8;
+
+// GPIO pin assignments for sensor connection
+const int SENSOR = 9;
 
 int leftState, middleState, rightState; // If button is pressed or not
 
@@ -39,12 +43,20 @@ void setup() {
   delay(500); // 500 ms delay for PS/2 standard
 
   // Initialize the mouse buttons as inputs:
-  pinMode(left, INPUT);
-  pinMode(middle, INPUT);
-  pinMode(right, INPUT);
+  pinMode(LEFT, INPUT);
+  pinMode(MIDDLE, INPUT);
+  pinMode(RIGHT, INPUT);
 
-  pinMode(DATA, OUTPUT);
-  pinMode(CLK, OUTPUT);
+  // In assignments for reading data and clock bus
+  pinMode(DATA_IN, INPUT);
+  pinMode(CLK_IN, INPUT);
+
+  // Out assignments for controlling data and clock bus
+  pinMode(DATA_OUT, OUTPUT);
+  pinMode(CLK_OUT, OUTPUT);
+
+  // Input for reading from sensor
+  pinMode(SENSOR, OUTPUT);
 
   byte_1 = byte_1 | 0x08; // Bit 3 is always 1
 
@@ -54,9 +66,9 @@ void setup() {
 void loop() {
 
   // read the state of the pushbutton value:
-  leftState = digitalRead(left);
-  middleState = digitalRead(middle);
-  rightState = digitalRead(right);
+  leftState = digitalRead(LEFT);
+  middleState = digitalRead(MIDDLE);
+  rightState = digitalRead(RIGHT);
 
   //Default state of switches is high
   // Check the value of the left mouse button
@@ -87,16 +99,17 @@ void loop() {
   delay(10); // Delay measured in ms
 }
 
-/* Sets the clock to 1, then back to 0 after a delay 
+/* 
+ Sets the clock to 1, then back to 0 after a delay 
  The clock frequency is 10-16.7 kHz.  The time from the rising edge of a clock pulse to a Data transition must be at least 5 microseconds. 
  The time from a data transition to the falling edge of a clock pulse must be at least 5 microseconds and no greater than 25 microseconds. 
 */
 int ps2_clock(void)
 {
   //Sets clock to high
-	digitalWrite(CLK, HIGH);
+	digitalWrite(CLK_OUT, HIGH);
   delayMicroseconds(15);
-	digitalWrite(CLK, LOW);
+	digitalWrite(CLK_OUT, LOW);
   //delayMicroseconds(15);
 	return 0;
 }
@@ -108,28 +121,28 @@ int ps2_dwrite(byte ps2_Data)
   int p = parity(ps2_Data); //Gets parity before bit shift
 
   // First bit is always 0
-  digitalWrite(DATA, LOW);
+  digitalWrite(DATA_OUT, LOW);
   ps2_clock();
 
   //Send entire byte, LSB first
   for (int i = 0; i < 8; i++) {
-    if ((ps2_Data & 0x01) == 0x01) digitalWrite(DATA, HIGH); //Writes high if least significant bit is 0
-    else digitalWrite(DATA, LOW); //Writes low if least significant bit is 0
+    if ((ps2_Data & 0x01) == 0x01) digitalWrite(DATA_OUT, HIGH); //Writes high if least significant bit is 0
+    else digitalWrite(DATA_OUT, LOW); //Writes low if least significant bit is 0
     ps2_clock(); //Clocks current data
     ps2_Data = ps2_Data >> 1; //Get next bit
   }
 
   // Check parity
   if (p == 1) {
-    digitalWrite(DATA, LOW); //Low if odd number of ones
+    digitalWrite(DATA_OUT, LOW); //Low if odd number of ones
     ps2_clock();
   } else {
-    digitalWrite(DATA, HIGH); // High if even number of ones
+    digitalWrite(DATA_OUT, HIGH); // High if even number of ones
     ps2_clock();
   }
 
   // Stop bit is always 1
-  digitalWrite(DATA, HIGH); // Always high
+  digitalWrite(DATA_OUT, HIGH); // Always high
   ps2_clock();
 }
 
