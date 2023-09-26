@@ -30,10 +30,6 @@ const int CLK_OUT = 8;
 // GPIO pin assignments for sensor connection
 const int SENSOR = 9;
 
-int leftState, middleState, rightState; // If button is pressed or not
-
-byte byte_1, byte_2, byte_3; // 3 bytes for PS/2 packet
-
 //Initial setup, run on boot
 void setup() {
 
@@ -57,13 +53,17 @@ void setup() {
 
   // Input for reading from sensor
   pinMode(SENSOR, OUTPUT);
-
-  byte_1 = byte_1 | 0x08; // Bit 3 is always 1
-
 }
 
 // Run indefinitely on loop
 void loop() {
+
+  int leftState, middleState, rightState; // If button is pressed or not
+
+  // Bit 3 is always 1 for byte 1
+  byte byte_1 = 0x08, byte_2, byte_3; // 3 bytes for PS/2 packet
+
+  int sensor_x, sensor_y;
 
   // read the state of the pushbutton value:
   leftState = digitalRead(LEFT);
@@ -96,6 +96,11 @@ void loop() {
   Serial.print(byte_1, HEX);
   Serial.print("\n");
 
+  // Writes data to PS2 data out
+  ps2_dwrite(byte_1);
+  ps2_dwrite(byte_2);
+  ps2_dwrite(byte_3);
+
   delay(10); // Delay measured in ms
 }
 
@@ -114,7 +119,7 @@ int ps2_clock(void)
 	return 0;
 }
 
-/* Writes data to the DATA PS/2 line */
+/* Writes data to the DATA_OUT PS/2 line */
 int ps2_dwrite(byte ps2_Data)
 {
 
@@ -144,6 +149,15 @@ int ps2_dwrite(byte ps2_Data)
   // Stop bit is always 1
   digitalWrite(DATA_OUT, HIGH); // Always high
   ps2_clock();
+
+  return 0;
+}
+
+/* Reads data from the DATA_IN ps/2 line  */
+int ps2_dread(byte ps2_Data)
+{
+
+  return 0;
 }
 
 // Check parity of byte
