@@ -22,10 +22,10 @@ const int MIDDLE = 3;    // Middle mouse button
 const int RIGHT = 4; // Right mouse button
 
 // GPIO pin assignments for PS/2 connection
-const int DATA_IN = 5;
-const int CLK_IN = 6;
-const int DATA_OUT = 7;
-const int CLK_OUT = 8;
+const int DATA_IN = 8;
+const int CLK_IN = 7;
+const int DATA_OUT = 6;
+const int CLK_OUT = 5;
 
 // GPIO pin assignments for sensor connection
 const int SENSOR = 9;
