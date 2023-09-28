@@ -92,26 +92,34 @@ void loop() {
 /* 
  Sets the clock to 1, then back to 0 after a delay 
  The clock frequency is 10-16.7 kHz.  The time from the rising edge of a clock pulse to a Data transition must be at least 5 microseconds. 
- The time from a data transition to the falling edge of a clock pulse must be at least 5 microseconds and no greater than 25 microseconds. 
+ The time from a data transition to the falling edge of a clock pulse must be at least 5 microseconds and no greater than 25 microseconds.
+ Data is read from device to host on FALLING edge
 */
 int ps2_clock(void)
 {
-  //Sets clock to high
-  delayMicroseconds(6);
-	digitalWrite(CLK_OUT, HIGH);
-  delayMicroseconds(15);
-	digitalWrite(CLK_OUT, LOW);
-  //delayMicroseconds(15);
+  delayMicroseconds(20);
+  digitalWrite(CLK_OUT, LOW); //This is inverted
+  delayMicroseconds(40);
+  digitalWrite(CLK_OUT, HIGH); //This is also inverted
+  delayMicroseconds(20);
 	return 0;
 }
 
 /* Writes data to the DATA_OUT PS/2 line */
+/*
+Summary: Bus States
+Data = high, Clock = high:  Idle state.
+Data = high, Clock = low:  Communication Inhibited.
+Data = low, Clock = high:  Host Request-to-Send
+*/
 int ps2_dwrite(byte ps2_Data)
 {
 
   int p = parity(ps2_Data); //Gets parity before bit shift
 
-  ps2_Data = ~ps2_Data; //Inverts bits because of common source
+  ps2_Data = ~ps2_Data; //Inverts bits because of open collector
+
+  delayMicroseconds(1000); //Delay between bytes
 
   // First bit is always 0
   digitalWrite(DATA_OUT, LOW);
