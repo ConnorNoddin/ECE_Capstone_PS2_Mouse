@@ -33,6 +33,8 @@ const int SENSOR = 9;
 //Initial setup, run on boot
 void setup() {
 
+  int ret;
+
   //Initiate Serial communication for debugging
   Serial.begin(9600); //9600 bits/second (Baud rate)
 
@@ -52,44 +54,27 @@ void setup() {
   pinMode(CLK_OUT, OUTPUT);
 
   // Input for reading from sensor
-  pinMode(SENSOR, OUTPUT);
+  pinMode(SENSOR, INPUT);
+
+  // Write self test passed
+  ret = ps2_dwrite(BAT);
+
+  // Write mouse ID
+  ret = ps2_dwrite(ID);
 }
 
 // Run indefinitely on loop
 void loop() {
-
-  int leftState, middleState, rightState; // If button is pressed or not
-
   // Bit 3 is always 1 for byte 1
   byte byte_1 = 0x08, byte_2, byte_3; // 3 bytes for PS/2 packet
 
-  int sensor_x, sensor_y;
+  byte tmp; //Temporary byte from functions
 
-  // read the state of the pushbutton value:
-  leftState = digitalRead(LEFT);
-  middleState = digitalRead(MIDDLE);
-  rightState = digitalRead(RIGHT);
+  int sensor_x, sensor_y; //Sensor x and y movement
 
-  //Default state of switches is high
-  // Check the value of the left mouse button
-  if (leftState == LOW) {
-    byte_1 = byte_1 | L_BUTTON;
-  } else {
-    byte_1 = byte_1 & ~L_BUTTON;
-  }
-    // Check the value of the right mouse button
-  if (rightState == LOW) {
-    byte_1 = byte_1 | R_BUTTON;
-  } else {
-    byte_1 = byte_1 & ~R_BUTTON;
-  }
-  // Check the value of the middle mouse button
-  if (middleState == LOW) {
-    byte_1 = byte_1 | M_BUTTON;
+  tmp = get_button_states(); // Gets state of all three buttons
 
-  } else {
-    byte_1 = byte_1 & ~M_BUTTON;
-  }
+  byte_1 = byte_1 | tmp; //Saves states to byte 1
 
   //Debugging
   Serial.print("Byte 1: 0x");
@@ -112,6 +97,7 @@ void loop() {
 int ps2_clock(void)
 {
   //Sets clock to high
+  delayMicroseconds(6);
 	digitalWrite(CLK_OUT, HIGH);
   delayMicroseconds(15);
 	digitalWrite(CLK_OUT, LOW);
@@ -124,6 +110,8 @@ int ps2_dwrite(byte ps2_Data)
 {
 
   int p = parity(ps2_Data); //Gets parity before bit shift
+
+  ps2_Data = ~ps2_Data; //Inverts bits because of common source
 
   // First bit is always 0
   digitalWrite(DATA_OUT, LOW);
@@ -175,3 +163,37 @@ int parity(byte p_check)
   return (ones & 0x01); //Checks if parity is odd
 }
 
+byte get_button_states(void)
+{
+  int leftState, middleState, rightState; // If button is pressed or not
+
+  byte buttons = 0x00;
+
+  // read the state of the pushbutton value:
+  leftState = digitalRead(LEFT);
+  middleState = digitalRead(MIDDLE);
+  rightState = digitalRead(RIGHT);
+
+  //Default state of switches is high
+  // Check the value of the left mouse button
+  if (leftState == LOW) {
+    buttons = buttons | L_BUTTON;
+  } else {
+    buttons = buttons & ~L_BUTTON;
+  }
+    // Check the value of the right mouse button
+  if (rightState == LOW) {
+    buttons = buttons | R_BUTTON;
+  } else {
+    buttons = buttons & ~R_BUTTON;
+  }
+  // Check the value of the middle mouse button
+  if (middleState == LOW) {
+    buttons = buttons | M_BUTTON;
+
+  } else {
+    buttons = buttons & ~M_BUTTON;
+  }
+
+  return buttons;
+}
