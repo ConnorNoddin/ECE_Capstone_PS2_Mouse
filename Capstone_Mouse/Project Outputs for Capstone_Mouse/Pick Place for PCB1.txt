@@ -1,0 +1,29 @@
+Designator Footprint               Mid X         Mid Y         Ref X         Ref Y         Pad X         Pad Y TB      Rotation Comment        
+
+Q1         TO-92A                4400mil       3600mil       4400mil       3600mil       4350mil       3600mil  T        270.00 2N3904         
+U1         27_DIP_7.62mm     3850.197mil    2657.48mil       3700mil       3300mil       3700mil       3300mil  T          0.00 ATMEGA328P-PU  
+Y1         R38                   3300mil       1900mil       3300mil       1900mil   3238.976mil       1900mil  T         90.00 XTAL           
+S3         SPST-2                4300mil       4700mil       4300mil       4700mil       4300mil       4800mil  T        270.00 SW-PB          
+S2         SPST-2                3300mil       4700mil       3300mil       4700mil       3300mil       4800mil  T        270.00 SW-PB          
+S1         SPST-2                2400mil       4700mil       2400mil       4700mil       2400mil       4800mil  T        270.00 SW-PB          
+R9         AXIAL-0.3             4000mil       4100mil       4000mil       4100mil       4000mil       4250mil  T        270.00 Res1           
+R8         AXIAL-0.3             3000mil       3900mil       3000mil       3900mil       3000mil       4050mil  T        270.00 Res1           
+R7         AXIAL-0.3             2500mil       3900mil       2500mil       3900mil       2500mil       4050mil  T        270.00 Res1           
+R6         AXIAL-0.3             3600mil       3800mil       3600mil       3800mil       3450mil       3800mil  T        360.00 Res1           
+R5         AXIAL-0.3             3500mil       4200mil       3500mil       4200mil       3350mil       4200mil  T        360.00 Res1           
+R4         AXIAL-0.3             4500mil       4100mil       4500mil       4100mil       4350mil       4100mil  T        360.00 Res1           
+R3         AXIAL-0.3             5100mil       4600mil       5100mil       4600mil       5250mil       4600mil  T        180.00 Res1           
+R2         AXIAL-0.3             5200mil       4100mil       5200mil       4100mil       5350mil       4100mil  T        180.00 Res1           
+R1         AXIAL-0.3             3300mil       3200mil       3300mil       3200mil       3300mil       3350mil  T        270.00 Res1           
+Q2         TO-92A                4400mil       3000mil       4400mil       3000mil       4350mil       3000mil  T        270.00 2N3904         
+P2         HDR1X8                4600mil       2150mil       4600mil       2500mil       4600mil       2500mil  T        270.00 Header 8       
+P1         HDR1X4                5000mil       3550mil       5000mil       3400mil       5000mil       3400mil  T         90.00 Header 4       
+D2         DO-35                 5100mil       2300mil       5100mil       2300mil   5239.764mil       2300mil  T        180.00 Diode 1N914    
+D1         DO-35                 5100mil       1900mil       5100mil       1900mil   5239.764mil       1900mil  T        180.00 Diode 1N914    
+C6         RAD-0.3               2400mil       3300mil       2400mil       3300mil       2400mil       3150mil  T         90.00 Cap            
+C5         RAD-0.3               2900mil       2500mil       2900mil       2500mil       2900mil       2350mil  T         90.00 Cap            
+C4         RAD-0.3               2900mil       3300mil       2900mil       3300mil       2900mil       3150mil  T         90.00 Cap            
+C3         RAD-0.3               5300mil       2900mil       5300mil       2900mil       5300mil       2750mil  T         90.00 Cap            
+C2         RAD-0.3               2400mil       2500mil       2400mil       2500mil       2400mil       2350mil  T         90.00 Cap            
+C1         RAD-0.3               2500mil       1900mil       2500mil       1900mil       2650mil       1900mil  T        180.00 Cap            
+
