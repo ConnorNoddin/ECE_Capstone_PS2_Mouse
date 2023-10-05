@@ -16,6 +16,8 @@
 #define STATUS_REQ 0xE9
 #define ACK 0xFA
 
+#define TIMEOUT 30
+
 // GPIO pin assignments for mouse buttons
 const int LEFT = 2;  // Left mouse button
 const int MIDDLE = 3;    // Middle mouse button
@@ -152,7 +154,86 @@ int ps2_dwrite(byte ps2_Data)
 /* Reads data from the DATA_IN ps/2 line  */
 int ps2_dread(byte ps2_Data)
 {
+  /*
+  unsigned int data = 0x00;
+  unsigned int bit = 0x01;
 
+  unsigned char calculated_parity = 1;
+  unsigned char received_parity = 0;
+
+  //wait for data line to go low and clock line to go high (or timeout)
+  unsigned long waiting_since = millis();
+  while((digitalRead(_ps2data) != LOW) || (digitalRead(_ps2clk) != HIGH)) {
+    if((millis() - waiting_since) > TIMEOUT) return -1;
+  }
+
+  delayMicroseconds(CLKHALF);
+  golo(_ps2clk);
+  delayMicroseconds(CLKFULL);
+  gohi(_ps2clk);
+  delayMicroseconds(CLKHALF);
+
+  while (bit < 0x0100) {
+    if (digitalRead(_ps2data) == HIGH)
+      {
+        data = data | bit;
+        calculated_parity = calculated_parity ^ 1;
+      } else {
+        calculated_parity = calculated_parity ^ 0;
+      }
+
+    bit = bit << 1;
+
+    delayMicroseconds(CLKHALF);
+    golo(_ps2clk);
+    delayMicroseconds(CLKFULL);
+    gohi(_ps2clk);
+    delayMicroseconds(CLKHALF);
+
+  }
+  // we do the delay at the end of the loop, so at this point we have
+  // already done the delay for the parity bit
+
+  // parity bit
+  if (digitalRead(_ps2data) == HIGH)
+    {
+      received_parity = 1;
+    }
+
+  // stop bit
+  delayMicroseconds(CLKHALF);
+  golo(_ps2clk);
+  delayMicroseconds(CLKFULL);
+  gohi(_ps2clk);
+  delayMicroseconds(CLKHALF);
+
+
+  delayMicroseconds(CLKHALF);
+  golo(_ps2data);
+  golo(_ps2clk);
+  delayMicroseconds(CLKFULL);
+  gohi(_ps2clk);
+  delayMicroseconds(CLKHALF);
+  gohi(_ps2data);
+
+
+  *value = data & 0x00FF;
+
+#ifdef _PS2DBG
+  _PS2DBG.print(F("received data "));
+  _PS2DBG.println(*value,HEX);
+  _PS2DBG.print(F("received parity "));
+  _PS2DBG.print(received_parity,BIN);
+  _PS2DBG.print(F(" calculated parity "));
+  _PS2DBG.println(received_parity,BIN);
+#endif
+  if (received_parity == calculated_parity) {
+    return 0;
+  } else {
+    return -2;
+  }
+
+  */
   return 0;
 }
 
