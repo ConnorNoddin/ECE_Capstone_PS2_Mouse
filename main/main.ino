@@ -102,9 +102,15 @@ void loop() {
   sensor_y = adns_sensor.get_y();
 
   //Debugging
-  //Serial.print("Byte 1: 0x");
-  //Serial.print(byte_1, HEX);
-  //Serial.print("\n");
+  /*
+  Serial.print("Byte 1: 0x");
+  Serial.print(byte_1, HEX);
+  Serial.print("\t Sensor X: ");
+  Serial.print(sensor_x, DEC);
+  Serial.print("\t Sensor Y: ");
+  Serial.print(sensor_y, DEC);
+  Serial.print("\n");
+  */
 
   // Writes data to PS2 data out
   ret = ps2_dwrite(byte_1);
