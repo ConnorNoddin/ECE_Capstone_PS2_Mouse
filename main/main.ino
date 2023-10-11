@@ -79,7 +79,7 @@ void setup() {
 // Run indefinitely on loop
 void loop() {
   // Bit 3 is always 1 for byte 1
-  byte byte_1 = 0x08, byte_2, byte_3; // 3 bytes for PS/2 packet
+  byte byte_1 = 0x08, byte_2 = 0x01, byte_3 = 0x01; // 3 bytes for PS/2 packet
 
   byte tmp; //Temporary byte from functions
 
@@ -111,14 +111,16 @@ void loop() {
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
 
+  ret = ps2_dwrite(byte_1);
+  ret = ps2_dwrite(byte_2);
+  ret = ps2_dwrite(byte_3);
+
   // Writes data to PS2 data out
   if (DEVICE_ENABLED == 1) {
-    ret = ps2_dwrite(byte_1);
-    ret = ps2_dwrite(byte_2);
-    ret = ps2_dwrite(byte_3);
+
   }
 
-  delay(50); // Delay measured in ms
+  //delay(50); // Delay measured in ms
 }
 
 /* 
@@ -234,7 +236,7 @@ int ps2_dread(byte *read_in)
 
   digitalWrite(DATA_OUT, HIGH);
   ps2_clock();
-  digitalWrite(DATA_OUT, HIGH);
+  digitalWrite(DATA_OUT, LOW);
 
   *read_in = data & 0x00FF;
 
@@ -300,7 +302,7 @@ int ps2command(byte input){
     break;
   case 0xF2: //get device id
     ack();
-    ps2_dwrite(00);
+    while (ps2_dwrite(0xAA)!=0);
     break;
   case 0xF0: //set remote mode
     ack();
@@ -320,6 +322,9 @@ int ps2command(byte input){
     break;
   case 0xE9: //status request
     ack();
+    while (ps2_dwrite(0x00)!=0);
+    while (ps2_dwrite(0x02)!=0);
+    while (ps2_dwrite(0x64)!=0);
     //      send_status();
     break;
   case 0xE8: //set resolution
@@ -341,7 +346,6 @@ int ps2command(byte input){
 void ack() {
   while (ps2_dwrite(0xFA));
 }
-
 
 byte get_button_states(void)
 {
