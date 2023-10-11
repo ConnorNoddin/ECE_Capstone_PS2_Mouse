@@ -1,6 +1,8 @@
 // Connor Noddin
 // ECE 406
 // Computer Engineering Capstone
+#include "ADNS9800_SROM_A4.h"
+#include "ADNS9800.h"
 
 // Packet Manipulation
 #define R_BUTTON 0x02
@@ -17,6 +19,9 @@
 #define ACK 0xFA
 
 #define TIMEOUT 30
+
+// Object for adns sensor
+controller adns;
 
 // GPIO pin assignments for mouse buttons
 const int LEFT = 2;  // Left mouse button
@@ -72,23 +77,31 @@ void loop() {
 
   byte tmp; //Temporary byte from functions
 
-  int sensor_x, sensor_y; //Sensor x and y movement
+  int sensor_x, sensor_y, ret; //Sensor x and y movement
+
+  if ((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) {
+    while (ps2_dread(&tmp));
+    ps2command(tmp);
+  }
 
   tmp = get_button_states(); // Gets state of all three buttons
 
   byte_1 = byte_1 | tmp; //Saves states to byte 1
 
+  // Code for sensor
+  //here
+
   //Debugging
-  Serial.print("Byte 1: 0x");
-  Serial.print(byte_1, HEX);
-  Serial.print("\n");
+  //Serial.print("Byte 1: 0x");
+  //Serial.print(byte_1, HEX);
+  //Serial.print("\n");
 
   // Writes data to PS2 data out
-  ps2_dwrite(byte_1);
-  ps2_dwrite(byte_2);
-  ps2_dwrite(byte_3);
+  ret = ps2_dwrite(byte_1);
+  ret = ps2_dwrite(byte_2);
+  ret = ps2_dwrite(byte_3);
 
-  delay(10); // Delay measured in ms
+  delay(50); // Delay measured in ms
 }
 
 /* 
@@ -100,81 +113,88 @@ void loop() {
 int ps2_clock(void)
 {
   delayMicroseconds(20);
-  digitalWrite(CLK_OUT, LOW); //This is inverted
+  digitalWrite(CLK_OUT, HIGH); //This is inverted
   delayMicroseconds(40);
-  digitalWrite(CLK_OUT, HIGH); //This is also inverted
+  digitalWrite(CLK_OUT, LOW); //This is also inverted
   delayMicroseconds(20);
 	return 0;
 }
 
-/* Writes data to the DATA_OUT PS/2 line */
-/*
+/* Writes data to the DATA_OUT PS/2 line
 Summary: Bus States
 Data = high, Clock = high:  Idle state.
 Data = high, Clock = low:  Communication Inhibited.
 Data = low, Clock = high:  Host Request-to-Send
+EVERY OUTPUT IS INVERTED
 */
 int ps2_dwrite(byte ps2_Data)
 {
 
-  int p = parity(ps2_Data); //Gets parity before bit shift
+  int p = parity(ps2_Data); //Gets parity before bit manipulation
 
-  ps2_Data = ~ps2_Data; //Inverts bits because of open collector
+  //ps2_Data = ~ps2_Data; //Inverts bits because of open collector
 
   delayMicroseconds(1000); //Delay between bytes
 
+  if (digitalRead(CLK_IN) == LOW) {
+    return -1;
+  }
+
+  if (digitalRead(DATA_IN) == LOW) {
+    return -2;
+  }
+
   // First bit is always 0
-  digitalWrite(DATA_OUT, LOW);
+  // INVERTED
+  digitalWrite(DATA_OUT, HIGH);
   ps2_clock();
 
   //Send entire byte, LSB first
+  //INVERTED because open collector
   for (int i = 0; i < 8; i++) {
-    if ((ps2_Data & 0x01) == 0x01) digitalWrite(DATA_OUT, HIGH); //Writes high if least significant bit is 0
-    else digitalWrite(DATA_OUT, LOW); //Writes low if least significant bit is 0
+    if ((ps2_Data & 0x01) == 0x01) digitalWrite(DATA_OUT, LOW); //Writes high if least significant bit is 0
+    else digitalWrite(DATA_OUT, HIGH); //Writes low if least significant bit is 0
     ps2_clock(); //Clocks current data
     ps2_Data = ps2_Data >> 1; //Get next bit
   }
 
   // Check parity
+  /* The parity bit is set if there is an even number of 1's in the data bits and reset (0) if there is an odd number of 1's in the data bits */
   if (p == 1) {
-    digitalWrite(DATA_OUT, LOW); //Low if odd number of ones
+    digitalWrite(DATA_OUT, HIGH); //Low if odd number of ones
     ps2_clock();
   } else {
-    digitalWrite(DATA_OUT, HIGH); // High if even number of ones
+    digitalWrite(DATA_OUT, LOW); // High if even number of ones
     ps2_clock();
   }
 
   // Stop bit is always 1
-  digitalWrite(DATA_OUT, HIGH); // Always high
+  digitalWrite(DATA_OUT, LOW); // Always high
   ps2_clock();
+
+  delayMicroseconds(1000); //Delay between bytes
 
   return 0;
 }
 
 /* Reads data from the DATA_IN ps/2 line  */
-int ps2_dread(byte ps2_Data)
+int ps2_dread(byte *read_in)
 {
-  /*
   unsigned int data = 0x00;
   unsigned int bit = 0x01;
 
   unsigned char calculated_parity = 1;
   unsigned char received_parity = 0;
 
-  //wait for data line to go low and clock line to go high (or timeout)
-  unsigned long waiting_since = millis();
-  while((digitalRead(_ps2data) != LOW) || (digitalRead(_ps2clk) != HIGH)) {
-    if((millis() - waiting_since) > TIMEOUT) return -1;
+  // Only reads when CLK is pulled low
+  // Timesouts if host has not sent for 30 ms
+  unsigned long init = millis();
+  while((digitalRead(DATA_IN) != LOW) || (digitalRead(CLK_IN) != HIGH)) {
+    if((millis() - init) > 30) return -1;
   }
 
-  delayMicroseconds(CLKHALF);
-  golo(_ps2clk);
-  delayMicroseconds(CLKFULL);
-  gohi(_ps2clk);
-  delayMicroseconds(CLKHALF);
-
   while (bit < 0x0100) {
-    if (digitalRead(_ps2data) == HIGH)
+    if (digitalRead(DATA_IN) == HIGH)
       {
         data = data | bit;
         calculated_parity = calculated_parity ^ 1;
@@ -184,56 +204,29 @@ int ps2_dread(byte ps2_Data)
 
     bit = bit << 1;
 
-    delayMicroseconds(CLKHALF);
-    golo(_ps2clk);
-    delayMicroseconds(CLKFULL);
-    gohi(_ps2clk);
-    delayMicroseconds(CLKHALF);
-
   }
-  // we do the delay at the end of the loop, so at this point we have
-  // already done the delay for the parity bit
 
   // parity bit
-  if (digitalRead(_ps2data) == HIGH)
+  if (digitalRead(DATA_IN) == HIGH)
     {
       received_parity = 1;
     }
 
   // stop bit
-  delayMicroseconds(CLKHALF);
-  golo(_ps2clk);
-  delayMicroseconds(CLKFULL);
-  gohi(_ps2clk);
-  delayMicroseconds(CLKHALF);
+  ps2_clock();
 
+  digitalWrite(DATA_OUT, HIGH);
+  ps2_clock();
+  digitalWrite(DATA_OUT, HIGH);
 
-  delayMicroseconds(CLKHALF);
-  golo(_ps2data);
-  golo(_ps2clk);
-  delayMicroseconds(CLKFULL);
-  gohi(_ps2clk);
-  delayMicroseconds(CLKHALF);
-  gohi(_ps2data);
+  *read_in = data & 0x00FF;
 
-
-  *value = data & 0x00FF;
-
-#ifdef _PS2DBG
-  _PS2DBG.print(F("received data "));
-  _PS2DBG.println(*value,HEX);
-  _PS2DBG.print(F("received parity "));
-  _PS2DBG.print(received_parity,BIN);
-  _PS2DBG.print(F(" calculated parity "));
-  _PS2DBG.println(received_parity,BIN);
-#endif
   if (received_parity == calculated_parity) {
     return 0;
   } else {
     return -2;
   }
 
-  */
   return 0;
 }
 
@@ -251,6 +244,87 @@ int parity(byte p_check)
  
   return (ones & 0x01); //Checks if parity is odd
 }
+
+int ps2command(byte input){
+
+  unsigned char val;
+
+  //This implements enough mouse commands to get by, most of them are
+  //just acked without really doing anything
+
+  switch (input) {
+  case 0xFF: //reset
+    ack();
+    //the while loop lets us wait for the host to be ready
+    while (ps2_dwrite(0xAA)!=0);
+    while (ps2_dwrite(0x00)!=0);
+    break;
+  case 0xFE: //resend
+    ack();
+    break;
+  case 0xF6: //set defaults
+    //enter stream mode
+    ack();
+    break;
+  case 0xF5:  //disable data reporting
+    //FM
+    ack();
+    break;
+  case 0xF4: //enable data reporting
+    //FM
+    //enabled = 1;
+    ack();
+    break;
+  case 0xF3: //set sample rate
+    ack();
+    ps2_dread(&val); // for now drop the new rate on the floor
+    //      Serial.println(val,HEX);
+    ack();
+    break;
+  case 0xF2: //get device id
+    ack();
+    ps2_dwrite(00);
+    break;
+  case 0xF0: //set remote mode
+    ack();
+    break;
+  case 0xEE: //set wrap mode
+    ack();
+    break;
+  case 0xEC: //reset wrap mode
+    ack();
+    break;
+  case 0xEB: //read data
+    ack();
+    //write_packet();
+    break;
+  case 0xEA: //set stream mode
+    ack();
+    break;
+  case 0xE9: //status request
+    ack();
+    //      send_status();
+    break;
+  case 0xE8: //set resolution
+    ack();
+    ps2_dread(&val);
+    //    Serial.println(val,HEX);
+    ack();
+    break;
+  case 0xE7: //set scaling 2:1
+    ack();
+    break;
+  case 0xE6: //set scaling 1:1
+    ack();
+    break;
+  }
+}
+
+//ack a host command
+void ack() {
+  while (ps2_dwrite(0xFA));
+}
+
 
 byte get_button_states(void)
 {
