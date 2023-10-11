@@ -21,9 +21,6 @@
 
 #define TIMEOUT 30
 
-// Object for adns sensor
-//controller adns_sensor;
-
 // GPIO pin assignments for mouse buttons
 const int LEFT = 2;  // Left mouse button
 const int MIDDLE = 3;    // Middle mouse button
@@ -38,6 +35,10 @@ const int CLK_OUT = 5;
 // GPIO pin assignments for sensor connection
 const int SENSOR = 9;
 
+// Allows device to send packets
+int DEVICE_ENABLED = 0;
+
+// SPI mouse sensor
 adns::controller adns_sensor;
 
 //Initial setup, run on boot
@@ -102,7 +103,6 @@ void loop() {
   sensor_y = adns_sensor.get_y();
 
   //Debugging
-  /*
   Serial.print("Byte 1: 0x");
   Serial.print(byte_1, HEX);
   Serial.print("\t Sensor X: ");
@@ -110,12 +110,13 @@ void loop() {
   Serial.print("\t Sensor Y: ");
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
-  */
 
   // Writes data to PS2 data out
-  ret = ps2_dwrite(byte_1);
-  ret = ps2_dwrite(byte_2);
-  ret = ps2_dwrite(byte_3);
+  if (DEVICE_ENABLED == 1) {
+    ret = ps2_dwrite(byte_1);
+    ret = ps2_dwrite(byte_2);
+    ret = ps2_dwrite(byte_3);
+  }
 
   delay(50); // Delay measured in ms
 }
@@ -288,7 +289,7 @@ int ps2command(byte input){
     break;
   case 0xF4: //enable data reporting
     //FM
-    //enabled = 1;
+    DEVICE_ENABLED = 1;
     ack();
     break;
   case 0xF3: //set sample rate
