@@ -609,6 +609,7 @@ private:
     }
 
     void controller::loop() {
+      update_motion_data();
         if (! _moved) return;
         if(_mot) {
             //clear();

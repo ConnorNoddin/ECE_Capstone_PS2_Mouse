@@ -67,13 +67,12 @@ void setup() {
   // Input for reading from sensor
   pinMode(SENSOR, INPUT);
 
-  adns::controller adns_sensor();
+  adns_sensor.setup();
 
   // Write self test passed
-  ret = ps2_dwrite(BAT);
-
+  while (ps2_dwrite(0xAA)!=0);
   // Write mouse ID
-  ret = ps2_dwrite(ID);
+  while (ps2_dwrite(0x00)!=0);
 }
 
 // Run indefinitely on loop
@@ -83,7 +82,7 @@ void loop() {
 
   byte tmp; //Temporary byte from functions
 
-  uint16_t sensor_x, sensor_y; //Sensor x and y movement
+  byte sensor_x, sensor_y; //Sensor x and y movement
 
   int ret;
 
@@ -99,10 +98,12 @@ void loop() {
   // Code for sensor
   adns_sensor.loop();
 
-  sensor_x = adns_sensor.get_x();
-  sensor_y = adns_sensor.get_y();
+  //sensor_x = adns_sensor.read_reg(0x04);
+  //sensor_y = adns_sensor.read_reg(0x06);
+  adns_sensor.printMotionData();
 
   //Debugging
+  /*
   Serial.print("Byte 1: 0x");
   Serial.print(byte_1, HEX);
   Serial.print("\t Sensor X: ");
@@ -110,14 +111,13 @@ void loop() {
   Serial.print("\t Sensor Y: ");
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
-
-  ret = ps2_dwrite(byte_1);
-  ret = ps2_dwrite(byte_2);
-  ret = ps2_dwrite(byte_3);
-
+  */
+  
   // Writes data to PS2 data out
   if (DEVICE_ENABLED == 1) {
-
+    ret = ps2_dwrite(byte_1);
+    ret = ps2_dwrite(byte_2);
+    ret = ps2_dwrite(byte_3);
   }
 
   //delay(50); // Delay measured in ms
