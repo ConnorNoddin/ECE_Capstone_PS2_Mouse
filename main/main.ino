@@ -3,7 +3,7 @@
 // Computer Engineering Capstone
 #include <SPI.h>
 #include <avr/pgmspace.h>
-#include "ADNS9800.h"
+#include "PMW3360.h"
 
 // Packet Manipulation
 #define R_BUTTON 0x02
@@ -21,6 +21,8 @@
 
 #define TIMEOUT 30
 
+#define SS 10 // SS pin on arduino
+
 // GPIO pin assignments for mouse buttons
 const int LEFT = 2;  // Left mouse button
 const int MIDDLE = 3;    // Middle mouse button
@@ -32,14 +34,11 @@ const int CLK_IN = 7;
 const int DATA_OUT = 6;
 const int CLK_OUT = 5;
 
-// GPIO pin assignments for sensor connection
-const int SENSOR = 9;
-
 // Allows device to send packets
 int DEVICE_ENABLED = 0;
 
 // SPI mouse sensor
-adns::controller adns_sensor;
+PMW3360 sensor;
 
 //Initial setup, run on boot
 void setup() {
@@ -64,10 +63,11 @@ void setup() {
   pinMode(DATA_OUT, OUTPUT);
   pinMode(CLK_OUT, OUTPUT);
 
-  // Input for reading from sensor
-  pinMode(SENSOR, INPUT);
-
-  adns_sensor.setup();
+  //Check if sensor initialized successfully
+  if(sensor.begin(SS))  // Pin 10 on arduino nano
+    Serial.println("Sensor initialization success");
+  else
+    Serial.println("Sensor initialization fail");
 
   // Write self test passed
   while (ps2_dwrite(0xAA)!=0);
@@ -82,7 +82,7 @@ void loop() {
 
   byte tmp; //Temporary byte from functions
 
-  byte sensor_x, sensor_y; //Sensor x and y movement
+  int16_t sensor_x, sensor_y; //Sensor x and y movement
 
   int ret;
 
@@ -96,14 +96,11 @@ void loop() {
   byte_1 = byte_1 | tmp; //Saves states to byte 1
 
   // Code for sensor
-  adns_sensor.loop();
-
-  //sensor_x = adns_sensor.read_reg(0x04);
-  //sensor_y = adns_sensor.read_reg(0x06);
-  adns_sensor.printMotionData();
+  PMW3360_DATA data = sensor.readBurst(); //Get data
+  sensor_x = data.dx; //Extract change in x
+  sensor_y = data.dy; //Extract change in y
 
   //Debugging
-  /*
   Serial.print("Byte 1: 0x");
   Serial.print(byte_1, HEX);
   Serial.print("\t Sensor X: ");
@@ -111,7 +108,6 @@ void loop() {
   Serial.print("\t Sensor Y: ");
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
-  */
   
   // Writes data to PS2 data out
   if (DEVICE_ENABLED == 1) {
@@ -120,7 +116,6 @@ void loop() {
     ret = ps2_dwrite(byte_3);
   }
 
-  //delay(50); // Delay measured in ms
 }
 
 /* 
