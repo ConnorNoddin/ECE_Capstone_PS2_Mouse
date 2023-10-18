@@ -20,6 +20,7 @@
 #define ACK 0xFA
 
 #define TIMEOUT 30
+#define FORCE_ENABLE 1
 
 #define SS 10 // SS pin on arduino
 
@@ -83,6 +84,7 @@ void loop() {
   byte tmp; //Temporary byte from functions
 
   int16_t sensor_x, sensor_y; //Sensor x and y movement
+  byte x_sign, y_sign;
 
   int ret;
 
@@ -100,6 +102,32 @@ void loop() {
   sensor_x = data.dx; //Extract change in x
   sensor_y = data.dy; //Extract change in y
 
+  //Sets sign bits from sensor
+  if (sensor_x < 0)
+    byte_1 = byte_1 | 0x10;
+  else
+    byte_1 = byte_1 & 0xEF;
+
+  if (sensor_y < 0)
+    byte_1 = byte_1 | 0x20;
+  else
+    byte_1 = byte_1 & 0xDF;
+
+  //Sets overflow bits from sensor
+  if (sensor_x > 255 || sensor_x < -255)
+    byte_1 = byte_1 | 0x40;
+  else
+    byte_1 = byte_1 & 0xBF;
+
+  if (sensor_y > 255 || sensor_y < -255)
+    byte_1 = byte_1 | 0x80;
+  else
+    byte_1 = byte_1 & 0x7F;
+
+  //Gets lower 8 bits of both sensor data for movement
+  byte_2 = sensor_x & 0x00FF;
+  byte_3 = sensor_y & 0x00FF;
+
   //Debugging
   Serial.print("Byte 1: 0x");
   Serial.print(byte_1, HEX);
@@ -110,7 +138,7 @@ void loop() {
   Serial.print("\n");
   
   // Writes data to PS2 data out
-  if (DEVICE_ENABLED == 1) {
+  if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
     ret = ps2_dwrite(byte_1);
     ret = ps2_dwrite(byte_2);
     ret = ps2_dwrite(byte_3);
