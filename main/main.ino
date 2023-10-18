@@ -21,6 +21,7 @@
 
 #define TIMEOUT 30
 #define FORCE_ENABLE 1
+#define CPI 500
 
 #define SS 10 // SS pin on arduino
 
@@ -69,6 +70,8 @@ void setup() {
     Serial.println("Sensor initialization success");
   else
     Serial.println("Sensor initialization fail");
+
+  sensor.setCPI(CPI);
 
   // Write self test passed
   while (ps2_dwrite(0xAA)!=0);
