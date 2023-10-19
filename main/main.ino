@@ -305,6 +305,12 @@ int parity(byte p_check)
   return (ones & 0x01); //Checks if parity is odd
 }
 
+/*
+Respond to the "Reset" (0xFF) command with "0xFA" then goto the beginning of your program. (ie, send 0xAA, 0x00, then wait for the enable command before sending any movement/button data.)
+Respond to the "Get Device ID" (0xF2) command with "0xFA, 0x00".
+Respond to the "Status Request" (0xE9) command with "0xFA, 0x00, 0x02, 0x64".
+Respond to all other commands with acknowledge (0xFA).
+*/
 int ps2command(byte input){
 
   unsigned char val;
@@ -330,7 +336,7 @@ int ps2command(byte input){
       //FM
       ack();
       break;
-    case 0xF4: //enable data reporting
+    case ENABLE: //enable data reporting ...0xF4
       //FM
       DEVICE_ENABLED = 1;
       Serial.println("Enable signal received!");
