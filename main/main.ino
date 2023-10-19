@@ -146,7 +146,6 @@ void loop() {
     ret = ps2_dwrite(byte_2);
     ret = ps2_dwrite(byte_3);
   }
-
 }
 
 /* 
