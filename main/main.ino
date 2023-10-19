@@ -9,6 +9,10 @@
 #define R_BUTTON 0x02
 #define L_BUTTON 0x01
 #define M_BUTTON 0x04
+#define X_SIGN 0x10
+#define Y_SIGN 0x20
+#define X_OVERFLOW 0x40
+#define Y_OVERFLOW 0x80
 
 // PS/2 Commands
 #define RESET 0xff
@@ -22,6 +26,13 @@
 #define TIMEOUT 30
 #define FORCE_ENABLE 1
 #define CPI 500
+#define SERIAL_RATE 9600
+
+#define INIT_DELAY 500
+#define CLOCK_HALF 20
+#define CLOCK_FULL 40
+#define BYTE_DELAY 1000
+#define HOST_TIMEOUT 30
 
 #define SS 10 // SS pin on arduino
 
@@ -37,7 +48,7 @@ const int DATA_OUT = 6;
 const int CLK_OUT = 5;
 
 // Allows device to send packets
-int DEVICE_ENABLED = 0;
+int DEVICE_ENABLED = 0; //Flag for if host sent device enabled signal
 
 // SPI mouse sensor
 PMW3360 sensor;
@@ -48,9 +59,9 @@ void setup() {
   int ret;
 
   //Initiate Serial communication for debugging
-  Serial.begin(9600); //9600 bits/second (Baud rate)
+  Serial.begin(SERIAL_RATE); //9600 bits/second (Baud rate)
 
-  delay(500); // 500 ms delay for PS/2 standard
+  delay(INIT_DELAY); // 500 ms delay for PS/2 standard
 
   // Initialize the mouse buttons as inputs:
   pinMode(LEFT, INPUT);
@@ -74,23 +85,24 @@ void setup() {
   sensor.setCPI(CPI);
 
   // Write self test passed
-  while (ps2_dwrite(0xAA)!=0);
+  while (ps2_dwrite(BAT)!=0);
   // Write mouse ID
-  while (ps2_dwrite(0x00)!=0);
+  while (ps2_dwrite(ID)!=0);
 }
 
 // Run indefinitely on loop
 void loop() {
   // Bit 3 is always 1 for byte 1
-  byte byte_1 = 0x08, byte_2 = 0x01, byte_3 = 0x01; // 3 bytes for PS/2 packet
+  byte byte_1 = 0x08, byte_2 = 0x00, byte_3 = 0x00; // 3 bytes for PS/2 packet
 
   byte tmp; //Temporary byte from functions
 
   int16_t sensor_x, sensor_y; //Sensor x and y movement
-  byte x_sign, y_sign;
+  byte x_sign, y_sign; // Bytes just for memory efficiency
 
   int ret;
 
+  // Check if host is trying to send commands
   if ((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) {
     while (ps2_dread(&tmp));
     ps2command(tmp);
@@ -107,25 +119,25 @@ void loop() {
 
   //Sets sign bits from sensor
   if (sensor_x < 0)
-    byte_1 = byte_1 | 0x10;
+    byte_1 = byte_1 | X_SIGN;
   else
-    byte_1 = byte_1 & 0xEF;
+    byte_1 = byte_1 & ~X_SIGN;
 
   if (sensor_y < 0)
-    byte_1 = byte_1 | 0x20;
+    byte_1 = byte_1 | Y_SIGN;
   else
-    byte_1 = byte_1 & 0xDF;
+    byte_1 = byte_1 & ~Y_SIGN;
 
   //Sets overflow bits from sensor
   if (sensor_x > 255 || sensor_x < -255)
-    byte_1 = byte_1 | 0x40;
+    byte_1 = byte_1 | X_OVERFLOW;
   else
-    byte_1 = byte_1 & 0xBF;
+    byte_1 = byte_1 & ~X_OVERFLOW;
 
   if (sensor_y > 255 || sensor_y < -255)
-    byte_1 = byte_1 | 0x80;
+    byte_1 = byte_1 | Y_OVERFLOW;
   else
-    byte_1 = byte_1 & 0x7F;
+    byte_1 = byte_1 & ~Y_OVERFLOW;
 
   //Gets lower 8 bits of both sensor data for movement
   byte_2 = sensor_x & 0x00FF;
@@ -156,11 +168,11 @@ void loop() {
 */
 int ps2_clock(void)
 {
-  delayMicroseconds(20);
+  delayMicroseconds(CLOCK_HALF);
   digitalWrite(CLK_OUT, HIGH); //This is inverted
-  delayMicroseconds(40);
+  delayMicroseconds(CLOCK_FULL);
   digitalWrite(CLK_OUT, LOW); //This is also inverted
-  delayMicroseconds(20);
+  delayMicroseconds(CLOCK_HALF);
 	return 0;
 }
 
@@ -178,7 +190,7 @@ int ps2_dwrite(byte ps2_Data)
 
   //ps2_Data = ~ps2_Data; //Inverts bits because of open collector
 
-  delayMicroseconds(1000); //Delay between bytes
+  delayMicroseconds(BYTE_DELAY); //Delay between bytes
 
   if (digitalRead(CLK_IN) == LOW) {
     return -1;
@@ -216,7 +228,7 @@ int ps2_dwrite(byte ps2_Data)
   digitalWrite(DATA_OUT, LOW); // Always high
   ps2_clock();
 
-  delayMicroseconds(1000); //Delay between bytes
+  delayMicroseconds(BYTE_DELAY); //Delay between bytes
 
   return 0;
 }
@@ -234,7 +246,8 @@ int ps2_dread(byte *read_in)
   // Timesouts if host has not sent for 30 ms
   unsigned long init = millis();
   while((digitalRead(DATA_IN) != LOW) || (digitalRead(CLK_IN) != HIGH)) {
-    if((millis() - init) > 30) return -1;
+    if((millis() - init) > HOST_TIMEOUT) return -1;
+    Serial.println("Read failed!");
   }
 
   while (bit < 0x0100) {
@@ -247,6 +260,8 @@ int ps2_dread(byte *read_in)
       }
 
     bit = bit << 1;
+
+    ps2_clock();
 
   }
 
@@ -297,79 +312,79 @@ int ps2command(byte input){
   //just acked without really doing anything
 
   switch (input) {
-  case 0xFF: //reset
-    ack();
-    //the while loop lets us wait for the host to be ready
-    while (ps2_dwrite(0xAA)!=0);
-    while (ps2_dwrite(0x00)!=0);
-    break;
-  case 0xFE: //resend
-    ack();
-    break;
-  case 0xF6: //set defaults
-    //enter stream mode
-    ack();
-    break;
-  case 0xF5:  //disable data reporting
-    //FM
-    ack();
-    break;
-  case 0xF4: //enable data reporting
-    //FM
-    DEVICE_ENABLED = 1;
-    ack();
-    break;
-  case 0xF3: //set sample rate
-    ack();
-    ps2_dread(&val); // for now drop the new rate on the floor
-    //      Serial.println(val,HEX);
-    ack();
-    break;
-  case 0xF2: //get device id
-    ack();
-    while (ps2_dwrite(0xAA)!=0);
-    break;
-  case 0xF0: //set remote mode
-    ack();
-    break;
-  case 0xEE: //set wrap mode
-    ack();
-    break;
-  case 0xEC: //reset wrap mode
-    ack();
-    break;
-  case 0xEB: //read data
-    ack();
-    //write_packet();
-    break;
-  case 0xEA: //set stream mode
-    ack();
-    break;
-  case 0xE9: //status request
-    ack();
-    while (ps2_dwrite(0x00)!=0);
-    while (ps2_dwrite(0x02)!=0);
-    while (ps2_dwrite(0x64)!=0);
-    //      send_status();
-    break;
-  case 0xE8: //set resolution
-    ack();
-    ps2_dread(&val);
-    //    Serial.println(val,HEX);
-    ack();
-    break;
-  case 0xE7: //set scaling 2:1
-    ack();
-    break;
-  case 0xE6: //set scaling 1:1
-    ack();
-    break;
+    case 0xFF: //reset
+      ack();
+      //the while loop lets us wait for the host to be ready
+      while (ps2_dwrite(BAT)!=0);
+      while (ps2_dwrite(ID)!=0);
+      break;
+    case 0xFE: //resend
+      ack();
+      break;
+    case 0xF6: //set defaults
+      //enter stream mode
+      ack();
+      break;
+    case 0xF5:  //disable data reporting
+      //FM
+      ack();
+      break;
+    case 0xF4: //enable data reporting
+      //FM
+      DEVICE_ENABLED = 1;
+      ack();
+      break;
+    case 0xF3: //set sample rate
+      ack();
+      ps2_dread(&val); // for now drop the new rate on the floor
+      //      Serial.println(val,HEX);
+      ack();
+      break;
+    case 0xF2: //get device id
+      ack();
+      while (ps2_dwrite(BAT)!=0);
+      break;
+    case 0xF0: //set remote mode
+      ack();
+      break;
+    case 0xEE: //set wrap mode
+      ack();
+      break;
+    case 0xEC: //reset wrap mode
+      ack();
+      break;
+    case 0xEB: //read data
+      ack();
+      //write_packet();
+      break;
+    case 0xEA: //set stream mode
+      ack();
+      break;
+    case 0xE9: //status request
+      ack();
+      while (ps2_dwrite(0x00)!=0);
+      while (ps2_dwrite(0x02)!=0);
+      while (ps2_dwrite(0x64)!=0);
+      //      send_status();
+      break;
+    case 0xE8: //set resolution
+      ack();
+      ps2_dread(&val);
+      //    Serial.println(val,HEX);
+      ack();
+      break;
+    case 0xE7: //set scaling 2:1
+      ack();
+      break;
+    case 0xE6: //set scaling 1:1
+      ack();
+      break;
   }
 }
 
 //ack a host command
 void ack() {
-  while (ps2_dwrite(0xFA));
+  while (ps2_dwrite(ACK)); //0xFA
 }
 
 byte get_button_states(void)
