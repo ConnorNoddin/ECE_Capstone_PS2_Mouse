@@ -24,7 +24,7 @@
 #define ACK 0xFA
 
 #define TIMEOUT 30
-#define FORCE_ENABLE 1
+#define FORCE_ENABLE 0
 #define CPI 500
 #define SERIAL_RATE 9600
 
@@ -34,7 +34,7 @@
 #define BYTE_DELAY 1000
 #define HOST_TIMEOUT 30
 
-#define SS 10 // SS pin on arduino
+#define SS 10 // SS pin on arduino. For nano 10 is default. Uno 3 is default
 
 // GPIO pin assignments for mouse buttons
 const int LEFT = 2;  // Left mouse button
@@ -151,6 +151,7 @@ void loop() {
   Serial.print("\t Sensor Y: ");
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
+
   
   // Writes data to PS2 data out
   if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
@@ -332,6 +333,7 @@ int ps2command(byte input){
     case 0xF4: //enable data reporting
       //FM
       DEVICE_ENABLED = 1;
+      Serial.println("Enable signal received!");
       ack();
       break;
     case 0xF3: //set sample rate
