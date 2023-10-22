@@ -29,10 +29,10 @@
 #define SERIAL_RATE 9600
 
 #define INIT_DELAY 500
-#define CLOCK_HALF 20
-#define CLOCK_FULL 40
+#define CLOCK_HALF 25
+#define CLOCK_FULL 50
 #define BYTE_DELAY 1000
-#define HOST_TIMEOUT 30
+#define HOST_TIMEOUT 60 //30 is defauklt
 
 #define SS 10 // SS pin on arduino. For nano 10 is default. Uno 3 is default
 
@@ -246,6 +246,8 @@ int ps2_dread(byte *read_in)
   unsigned char calculated_parity = 1;
   unsigned char received_parity = 0;
 
+  delayMicroseconds(BYTE_DELAY); //Delay between bytes
+
   // Only reads when CLK is pulled low
   // Timesouts if host has not sent for 30 ms
   unsigned long init = millis();
@@ -280,8 +282,18 @@ int ps2_dread(byte *read_in)
   // stop bit
   ps2_clock();
 
+  /*
   digitalWrite(DATA_OUT, HIGH);
   ps2_clock();
+  digitalWrite(DATA_OUT, LOW);
+  */
+
+  delayMicroseconds(CLOCK_HALF);
+  digitalWrite(DATA_OUT, HIGH);
+  digitalWrite(CLK_OUT, HIGH); //This is inverted
+  delayMicroseconds(CLOCK_FULL);
+  digitalWrite(CLK_OUT, LOW); //This is also inverted
+  delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, LOW);
 
   *read_in = data & 0x00FF;
@@ -289,8 +301,13 @@ int ps2_dread(byte *read_in)
   if (received_parity == calculated_parity) {
     return 0;
   } else {
-    return -2;
+    //Parity is wrong and an error occured
+    //return -2;
+    return 0;
   }
+
+  delayMicroseconds(BYTE_DELAY); //Delay between bytes
+
 
   return 0;
 }
@@ -341,7 +358,7 @@ int ps2command(byte input){
       //FM
       ack();
       break;
-    case ENABLE: //enable data reporting ...0xF4
+    case 0xF4: //enable data reporting ...0xF4
       //FM
       DEVICE_ENABLED = 1;
       Serial.println("Enable signal received!");
@@ -390,6 +407,10 @@ int ps2command(byte input){
       ack();
       break;
     case 0xE6: //set scaling 1:1
+      ack();
+      break;
+    default:
+      //DEVICE_ENABLED = 1;
       ack();
       break;
   }
