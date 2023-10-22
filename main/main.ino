@@ -62,6 +62,8 @@ void setup() {
   Serial.begin(SERIAL_RATE); //9600 bits/second (Baud rate)
 
   delay(INIT_DELAY); // 500 ms delay for PS/2 standard
+  digitalWrite(CLK_OUT, LOW);
+  digitalWrite(DATA_OUT, LOW);
 
   // Initialize the mouse buttons as inputs:
   pinMode(LEFT, INPUT);
@@ -88,6 +90,7 @@ void setup() {
   while (ps2_dwrite(BAT)!=0);
   // Write mouse ID
   while (ps2_dwrite(ID)!=0);
+
 }
 
 // Run indefinitely on loop
@@ -248,8 +251,10 @@ int ps2_dread(byte *read_in)
   unsigned long init = millis();
   while((digitalRead(DATA_IN) != LOW) || (digitalRead(CLK_IN) != HIGH)) {
     if((millis() - init) > HOST_TIMEOUT) return -1;
-    Serial.println("Read failed!");
+    //Serial.println("Read failed!");
   }
+
+  ps2_clock();
 
   while (bit < 0x0100) {
     if (digitalRead(DATA_IN) == HIGH)
@@ -320,8 +325,8 @@ int ps2command(byte input){
 
   switch (input) {
     case 0xFF: //reset
-      ack();
       //the while loop lets us wait for the host to be ready
+      ack();
       while (ps2_dwrite(BAT)!=0);
       while (ps2_dwrite(ID)!=0);
       break;
@@ -392,7 +397,7 @@ int ps2command(byte input){
 
 //ack a host command
 void ack() {
-  while (ps2_dwrite(ACK)); //0xFA
+  while (ps2_dwrite(ACK) != 0); //0xFA
 }
 
 byte get_button_states(void)
