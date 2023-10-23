@@ -98,7 +98,7 @@ void loop() {
   // Bit 3 is always 1 for byte 1
   byte byte_1 = 0x08, byte_2 = 0x00, byte_3 = 0x00; // 3 bytes for PS/2 packet
 
-  byte tmp; //Temporary byte from functions
+  byte tmp = 0x00; //Temporary byte from functions
 
   int16_t sensor_x, sensor_y; //Sensor x and y movement
   byte x_sign, y_sign; // Bytes just for memory efficiency
@@ -260,9 +260,30 @@ int ps2_dread(byte *read_in)
     //Serial.println("Read failed!");
   }
 
-  ps2_clock();
+  //First packet bit is here which is always 0!
+
+  delayMicroseconds(CLOCK_FULL);
+  digitalWrite(CLK_OUT, HIGH); //This is inverted
+  delayMicroseconds(CLOCK_FULL);
+
+  if (digitalRead(DATA_IN) == HIGH)
+    {
+      data = data | bit;
+      calculated_parity = calculated_parity ^ 1;
+    } else {
+      calculated_parity = calculated_parity ^ 0;
+    }
+
+  bit = bit << 1;
+
+  digitalWrite(CLK_OUT, LOW); //This is also inverted
+  delayMicroseconds(CLOCK_FULL);
+  digitalWrite(CLK_OUT, HIGH); //This is inverted
+  delayMicroseconds(CLOCK_FULL);
+
 
   while (bit < 0x0100) {
+
     if (digitalRead(DATA_IN) == HIGH)
       {
         data = data | bit;
@@ -273,7 +294,10 @@ int ps2_dread(byte *read_in)
 
     bit = bit << 1;
 
-    ps2_clock();
+    digitalWrite(CLK_OUT, LOW); //This is inverted
+    delayMicroseconds(CLOCK_FULL);
+    digitalWrite(CLK_OUT, HIGH); //This is also inverted
+    delayMicroseconds(CLOCK_FULL);
 
   }
 
@@ -283,8 +307,10 @@ int ps2_dread(byte *read_in)
       received_parity = 1;
     }
 
-  // stop bit
-  ps2_clock();
+  digitalWrite(CLK_OUT, LOW); //This is inverted
+  delayMicroseconds(CLOCK_FULL);
+  digitalWrite(CLK_OUT, HIGH); //This is also inverted
+  delayMicroseconds(CLOCK_HALF);
 
   /*
   digitalWrite(DATA_OUT, HIGH);
@@ -293,12 +319,19 @@ int ps2_dread(byte *read_in)
   */
 
   delayMicroseconds(CLOCK_HALF);
+  digitalWrite(CLK_OUT, LOW); //This is inverted
+  delayMicroseconds(CLOCK_FULL);
+  digitalWrite(CLK_OUT, HIGH); //This is also inverted
+  delayMicroseconds(CLOCK_HALF);
+
+  delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, HIGH);
   digitalWrite(CLK_OUT, HIGH); //This is inverted
   delayMicroseconds(CLOCK_FULL);
   digitalWrite(CLK_OUT, LOW); //This is also inverted
   delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, LOW);
+  delayMicroseconds(CLOCK_HALF);
 
   *read_in = data & 0x00FF;
 
@@ -401,7 +434,7 @@ int ps2command(byte input){
       while (ps2_dwrite(0x64)!=0);
       //      send_status();
       break;
-    case 0xE8: //set resolution
+    case 0xF8: //set resolution..this should be E8 not F8
       ack();
       ps2_dread(&val);
       //    Serial.println(val,HEX);
