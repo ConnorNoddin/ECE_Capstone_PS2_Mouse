@@ -264,7 +264,7 @@ int ps2_dread(byte *read_in)
 
   ps2_clock();
 
-  while (bit < 0x0100) {
+  for (int i = 0; i < 8; i++) {
 
     if (digitalRead(DATA_IN) == HIGH)
       {
