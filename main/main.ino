@@ -62,8 +62,6 @@ void setup() {
   Serial.begin(SERIAL_RATE); //9600 bits/second (Baud rate)
 
   delay(INIT_DELAY); // 500 ms delay for PS/2 standard
-  digitalWrite(CLK_OUT, LOW);
-  digitalWrite(DATA_OUT, LOW);
 
   // Initialize the mouse buttons as inputs:
   pinMode(LEFT, INPUT);
@@ -109,8 +107,6 @@ void loop() {
   if ((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) {
     while (ps2_dread(&tmp));
     ps2command(tmp);
-    Serial.print("Command Received: 0x");
-    Serial.println(tmp, HEX);
   }
 
   tmp = get_button_states(); // Gets state of all three buttons
@@ -257,12 +253,13 @@ int ps2_dread(byte *read_in)
   unsigned long init = millis();
   while((digitalRead(DATA_IN) != LOW) || (digitalRead(CLK_IN) != HIGH)) {
     if((millis() - init) > HOST_TIMEOUT) return -1;
-    //Serial.println("Read failed!");
+    //Serial.println("Read failed, host timeout!");
   }
 
   //First packet bit is here which is always 0!
 
   ps2_clock();
+  Serial.println("Receiving Bits!");
 
   for (int i = 0; i < 8; i++) {
 
@@ -270,26 +267,35 @@ int ps2_dread(byte *read_in)
       {
         data = data | bit;
         calculated_parity = calculated_parity ^ 1;
+        Serial.print("1, ");
       } else {
         calculated_parity = calculated_parity ^ 0;
+        Serial.print("0, ");
       }
 
     bit = bit << 1;
-
     ps2_clock();
 
   }
+
+  Serial.println();
+  Serial.print("Reading parity bit... ");
 
   // parity bit ... clock is from last iteration of loop
   if (digitalRead(DATA_IN) == HIGH)
     {
       received_parity = 1;
+      Serial.println("1");
     }
+  else {
+    Serial.println("0");
+  }
 
 
-  //Clock for stop boit
+  //Clock for stop bit
   ps2_clock();
 
+  //ACK
   delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, HIGH);
   digitalWrite(CLK_OUT, HIGH); //This is inverted
@@ -300,16 +306,23 @@ int ps2_dread(byte *read_in)
 
   *read_in = data & 0x00FF;
 
+  Serial.print("Command Received: 0x");
+  Serial.println(data, HEX);
+
   if (received_parity == calculated_parity) {
     return 0;
   } else {
     //Parity is wrong and an error occured
-    //return -2;
-    return 0;
+    Serial.print("Calculated Parity: ");
+    Serial.print(calculated_parity, DEC);
+    Serial.print("\t Received Parity: ");
+    Serial.println(received_parity, DEC);
+    Serial.println("Parity error in read function!");
+    return -2;
+    //return 0;
   }
 
   //delayMicroseconds(BYTE_DELAY); //Delay between bytes
-
 
   return 0;
 }
@@ -345,6 +358,7 @@ int ps2command(byte input){
   switch (input) {
     case 0xFF: //reset
       //the while loop lets us wait for the host to be ready
+      DEVICE_ENABLED = 0;
       ack();
       while (ps2_dwrite(BAT)!=0);
       while (ps2_dwrite(ID)!=0);
@@ -374,7 +388,7 @@ int ps2command(byte input){
       break;
     case 0xF2: //get device id
       ack();
-      ps2_dwrite(BAT);
+      ps2_dwrite(ID);
       break;
     case 0xF0: //set remote mode
       ack();
@@ -416,6 +430,8 @@ int ps2command(byte input){
       //ack();
       break;
   }
+  Serial.print("Sent response to: 0x");
+  Serial.println(input, HEX);
 }
 
 //ack a host command
