@@ -109,6 +109,8 @@ void loop() {
   if ((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) {
     while (ps2_dread(&tmp));
     ps2command(tmp);
+    Serial.print("Command Received: 0x");
+    Serial.println(tmp, HEX);
   }
 
   tmp = get_button_states(); // Gets state of all three buttons
@@ -147,6 +149,7 @@ void loop() {
   byte_3 = sensor_y & 0x00FF;
 
   //Debugging
+  /*
   Serial.print("Byte 1: 0x");
   Serial.print(byte_1, HEX);
   Serial.print("\t Sensor X: ");
@@ -154,6 +157,7 @@ void loop() {
   Serial.print("\t Sensor Y: ");
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
+  */
 
   
   // Writes data to PS2 data out
@@ -246,7 +250,7 @@ int ps2_dread(byte *read_in)
   unsigned char calculated_parity = 1;
   unsigned char received_parity = 0;
 
-  delayMicroseconds(BYTE_DELAY); //Delay between bytes
+  //delayMicroseconds(BYTE_DELAY); //Delay between bytes
 
   // Only reads when CLK is pulled low
   // Timesouts if host has not sent for 30 ms
@@ -306,7 +310,7 @@ int ps2_dread(byte *read_in)
     return 0;
   }
 
-  delayMicroseconds(BYTE_DELAY); //Delay between bytes
+  //delayMicroseconds(BYTE_DELAY); //Delay between bytes
 
 
   return 0;
@@ -411,7 +415,7 @@ int ps2command(byte input){
       break;
     default:
       //DEVICE_ENABLED = 1;
-      ack();
+      //ack();
       break;
   }
 }
