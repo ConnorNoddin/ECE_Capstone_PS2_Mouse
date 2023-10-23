@@ -262,25 +262,7 @@ int ps2_dread(byte *read_in)
 
   //First packet bit is here which is always 0!
 
-  delayMicroseconds(CLOCK_FULL);
-  digitalWrite(CLK_OUT, HIGH); //This is inverted
-  delayMicroseconds(CLOCK_FULL);
-
-  if (digitalRead(DATA_IN) == HIGH)
-    {
-      data = data | bit;
-      calculated_parity = calculated_parity ^ 1;
-    } else {
-      calculated_parity = calculated_parity ^ 0;
-    }
-
-  bit = bit << 1;
-
-  digitalWrite(CLK_OUT, LOW); //This is also inverted
-  delayMicroseconds(CLOCK_FULL);
-  digitalWrite(CLK_OUT, HIGH); //This is inverted
-  delayMicroseconds(CLOCK_FULL);
-
+  ps2_clock();
 
   while (bit < 0x0100) {
 
@@ -294,35 +276,19 @@ int ps2_dread(byte *read_in)
 
     bit = bit << 1;
 
-    digitalWrite(CLK_OUT, LOW); //This is inverted
-    delayMicroseconds(CLOCK_FULL);
-    digitalWrite(CLK_OUT, HIGH); //This is also inverted
-    delayMicroseconds(CLOCK_FULL);
+    ps2_clock();
 
   }
 
-  // parity bit
+  // parity bit ... clock is from last iteration of loop
   if (digitalRead(DATA_IN) == HIGH)
     {
       received_parity = 1;
     }
 
-  digitalWrite(CLK_OUT, LOW); //This is inverted
-  delayMicroseconds(CLOCK_FULL);
-  digitalWrite(CLK_OUT, HIGH); //This is also inverted
-  delayMicroseconds(CLOCK_HALF);
 
-  /*
-  digitalWrite(DATA_OUT, HIGH);
+  //Clock for stop boit
   ps2_clock();
-  digitalWrite(DATA_OUT, LOW);
-  */
-
-  delayMicroseconds(CLOCK_HALF);
-  digitalWrite(CLK_OUT, LOW); //This is inverted
-  delayMicroseconds(CLOCK_FULL);
-  digitalWrite(CLK_OUT, HIGH); //This is also inverted
-  delayMicroseconds(CLOCK_HALF);
 
   delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, HIGH);
@@ -331,7 +297,6 @@ int ps2_dread(byte *read_in)
   digitalWrite(CLK_OUT, LOW); //This is also inverted
   delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, LOW);
-  delayMicroseconds(CLOCK_HALF);
 
   *read_in = data & 0x00FF;
 
@@ -409,7 +374,7 @@ int ps2command(byte input){
       break;
     case 0xF2: //get device id
       ack();
-      while (ps2_dwrite(BAT)!=0);
+      ps2_dwrite(BAT);
       break;
     case 0xF0: //set remote mode
       ack();
@@ -434,7 +399,7 @@ int ps2command(byte input){
       while (ps2_dwrite(0x64)!=0);
       //      send_status();
       break;
-    case 0xF8: //set resolution..this should be E8 not F8
+    case 0xE8: //set resolution..this should be E8 not F8
       ack();
       ps2_dread(&val);
       //    Serial.println(val,HEX);
