@@ -131,16 +131,32 @@ void loop() {
   else
     byte_1 = byte_1 & ~Y_SIGN;
 
-  //Sets overflow bits from sensor
-  if (sensor_x > 255 || sensor_x < -255)
+  //Sets overflow bits from sensor... 2s compliment!
+  if (sensor_x > 255) {
     byte_1 = byte_1 | X_OVERFLOW;
-  else
+    sensor_x = 0xFF;
+  } else {
     byte_1 = byte_1 & ~X_OVERFLOW;
+  }
+  if (sensor_x < -255) {
+    byte_1 = byte_1 | X_OVERFLOW;
+    sensor_x = 0x01; //2s compliment, sign bit above
+  } else {
+    byte_1 = byte_1 & ~X_OVERFLOW;
+  }
 
-  if (sensor_y > 255 || sensor_y < -255)
+  if (sensor_y > 255) {
     byte_1 = byte_1 | Y_OVERFLOW;
-  else
+    sensor_y = 0xFF;
+  } else {
     byte_1 = byte_1 & ~Y_OVERFLOW;
+  }
+  if (sensor_y < -255) {
+    byte_1 = byte_1 | Y_OVERFLOW;
+    sensor_x = 0x01; //2s compliment, sign bit above
+  } else {
+    byte_1 = byte_1 & ~Y_OVERFLOW;
+  }
 
   //Gets lower 8 bits of both sensor data for movement
   byte_2 = sensor_x & 0x00FF;
@@ -156,7 +172,6 @@ void loop() {
   Serial.print(sensor_y, DEC);
   Serial.print("\n");
   */
-
   
   // Writes data to PS2 data out
   if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
