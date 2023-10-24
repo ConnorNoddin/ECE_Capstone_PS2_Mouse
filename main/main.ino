@@ -32,7 +32,7 @@
 #define INIT_DELAY 500
 #define CLOCK_HALF 20
 #define CLOCK_FULL 40
-#define BYTE_DELAY 1000
+#define BYTE_DELAY 2000
 #define HOST_TIMEOUT 60  //30 is defauklt
 #define TIMEOUT 30
 
@@ -87,9 +87,11 @@ void setup() {
   sensor.setCPI(CPI);
 
   // Write self test passed
-  while (ps2_dwrite(BAT) != 0);
+  while (ps2_dwrite(BAT) != 0)
+    ;
   // Write mouse ID
-  while (ps2_dwrite(ID) != 0);
+  while (ps2_dwrite(ID) != 0)
+    ;
 }
 
 // Run indefinitely on loop
@@ -106,7 +108,8 @@ void loop() {
 
   // Check if host is trying to send commands
   if ((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) {
-    while (ps2_dread(&tmp));
+    while (ps2_dread(&tmp))
+      ;  // If this fails it basically halts the program forever
     ps2command(tmp);
   }
 
@@ -247,7 +250,7 @@ int ps2_dwrite(byte ps2_Data) {
   digitalWrite(DATA_OUT, LOW);  // Always high
   ps2_clock();
 
-  delayMicroseconds(BYTE_DELAY);  //Delay between bytes
+  //delayMicroseconds(BYTE_DELAY);  //Delay between bytes
 
   return 0;
 }
@@ -271,10 +274,11 @@ int ps2_dread(byte *read_in) {
     //Serial.println("Read failed, host timeout!");
   }
 
-  //First packet bit is here which is always 0!
+  //ps2_clock (); //Probably not needed
 
+  //First packet bit is here which is always 0!
   ps2_clock();
-  Serial.print("Receiving data bits... ");
+  //Serial.print("Receiving data bits... ");
 
   // maybe add a delay here
 
@@ -283,11 +287,13 @@ int ps2_dread(byte *read_in) {
 
     if (digitalRead(DATA_IN) == HIGH) {
       data = data | bit;
-      calculated_parity = calculated_parity ^ 1;
-      Serial.print("1, ");
+      //calculated_parity = calculated_parity ^ 1;
+      //Serial.print("1, ");
+      delayMicroseconds(100);  //there seems to be an issue after reading a 1
+
     } else {
-      calculated_parity = calculated_parity ^ 0;
-      Serial.print("0, ");
+      //calculated_parity = calculated_parity ^ 0;
+      //Serial.print("0, ");
     }
 
     bit = bit << 1;
@@ -296,15 +302,15 @@ int ps2_dread(byte *read_in) {
     //maybe add a delay here
   }
 
-  Serial.println();
-  Serial.print("Reading parity bit... ");
+  //Serial.println();
+  //Serial.print("Reading parity bit... ");
 
   // parity bit ... clock is from last iteration of loop
   if (digitalRead(DATA_IN) == HIGH) {
     received_parity = 1;
-    Serial.println("1");
+    //Serial.println("1");
   } else {
-    Serial.println("0");
+    //Serial.println("0");
   }
 
 
@@ -317,8 +323,8 @@ int ps2_dread(byte *read_in) {
   11) Wait for the device to bring Clock  low.
   12) Wait for the device to release Data and Clock
   */
-  delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, HIGH);
+  delayMicroseconds(CLOCK_HALF);
   digitalWrite(CLK_OUT, HIGH);
   delayMicroseconds(CLOCK_FULL);
   digitalWrite(CLK_OUT, LOW);
@@ -341,8 +347,8 @@ int ps2_dread(byte *read_in) {
     Serial.print("\t Received Parity: ");
     Serial.println(received_parity, DEC);
     Serial.println("Parity error in read function!");
-    return -2;
-    //return 0;
+    //return -2;
+    return 0;
   }
 
   //delayMicroseconds(BYTE_DELAY); //Delay between bytes
@@ -450,7 +456,7 @@ int ps2command(byte input) {
       ack();
       break;
     default:
-      //DEVICE_ENABLED = 1;
+      Serial.print("Unknown command.... likely an error in the read function");
       //ack();
       break;
   }
