@@ -23,16 +23,18 @@
 #define STATUS_REQ 0xE9
 #define ACK 0xFA
 
-#define TIMEOUT 30
+// Misc Setup
 #define FORCE_ENABLE 0 //Good for debugging data packets. Will make most hosts not work
 #define CPI 500
 #define SERIAL_RATE 9600
 
+//Timings
 #define INIT_DELAY 500
 #define CLOCK_HALF 25
 #define CLOCK_FULL 50
 #define BYTE_DELAY 1000
 #define HOST_TIMEOUT 60 //30 is defauklt
+#define TIMEOUT 30
 
 #define SS 10 // SS pin on arduino. For nano 10 is default. Uno 3 is default
 
@@ -263,6 +265,7 @@ int ps2_dread(byte *read_in)
 
   // maybe add a delay here
 
+  // Reads 8 data bits (LSB first!)
   for (int i = 0; i < 8; i++) {
 
     if (digitalRead(DATA_IN) == HIGH)
@@ -308,11 +311,13 @@ int ps2_dread(byte *read_in)
   delayMicroseconds(CLOCK_HALF);
   digitalWrite(DATA_OUT, LOW);
 
+  // Returns data to main loop
   *read_in = data & 0x00FF;
 
   Serial.print("Command Received: 0x");
   Serial.println(data, HEX);
 
+  //Parity check
   if (received_parity == calculated_parity) {
     return 0;
   } else {
@@ -347,17 +352,14 @@ int parity(byte p_check)
 }
 
 /*
-Respond to the "Reset" (0xFF) command with "0xFA" then goto the beginning of your program. (ie, send 0xAA, 0x00, then wait for the enable command before sending any movement/button data.)
+Respond to the "Reset" (0xFF) command with "0xFA" then goto the beginning of your program.
 Respond to the "Get Device ID" (0xF2) command with "0xFA, 0x00".
 Respond to the "Status Request" (0xE9) command with "0xFA, 0x00, 0x02, 0x64".
 Respond to all other commands with acknowledge (0xFA).
 */
 int ps2command(byte input){
 
-  unsigned char val;
-
-  //This implements enough mouse commands to get by, most of them are
-  //just acked without really doing anything
+  unsigned char val; //Value for when reading is required
 
   switch (input) {
     case 0xFF: //reset
