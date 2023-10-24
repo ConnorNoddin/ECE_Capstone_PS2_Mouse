@@ -30,8 +30,8 @@
 
 //Timings
 #define INIT_DELAY 500
-#define CLOCK_HALF 25
-#define CLOCK_FULL 50
+#define CLOCK_HALF 20
+#define CLOCK_FULL 40
 #define BYTE_DELAY 1000
 #define HOST_TIMEOUT 60 //30 is defauklt
 #define TIMEOUT 30
@@ -213,6 +213,7 @@ int ps2_dwrite(byte ps2_Data)
 
   delayMicroseconds(BYTE_DELAY); //Delay between bytes
 
+  // Never transmit if the host is inhibiting communication!
   if (digitalRead(CLK_IN) == LOW) {
     return -1;
   }
