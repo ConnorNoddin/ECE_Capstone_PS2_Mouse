@@ -24,7 +24,7 @@
 #define ACK 0xFA
 
 #define TIMEOUT 30
-#define FORCE_ENABLE 0
+#define FORCE_ENABLE 0 //Good for debugging data packets. Will make most hosts not work
 #define CPI 500
 #define SERIAL_RATE 9600
 
@@ -259,7 +259,7 @@ int ps2_dread(byte *read_in)
   //First packet bit is here which is always 0!
 
   ps2_clock();
-  Serial.println("Receiving Bits!");
+  Serial.print("Receiving data bits... ");
 
   // maybe add a delay here
 
