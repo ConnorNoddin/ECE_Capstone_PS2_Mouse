@@ -261,6 +261,8 @@ int ps2_dread(byte *read_in)
   ps2_clock();
   Serial.println("Receiving Bits!");
 
+  // maybe add a delay here
+
   for (int i = 0; i < 8; i++) {
 
     if (digitalRead(DATA_IN) == HIGH)
@@ -275,6 +277,8 @@ int ps2_dread(byte *read_in)
 
     bit = bit << 1;
     ps2_clock();
+
+    //maybe add a delay here
 
   }
 
@@ -430,8 +434,9 @@ int ps2command(byte input){
       //ack();
       break;
   }
-  Serial.print("Sent response to: 0x");
+  Serial.print("Sent response to command: 0x");
   Serial.println(input, HEX);
+  return 0;
 }
 
 //ack a host command
