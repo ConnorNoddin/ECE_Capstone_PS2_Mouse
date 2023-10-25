@@ -108,7 +108,7 @@ void loop() {
   int ret;
 
   // Check if host is trying to send commands
-  if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW))) {
+  if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED ==0) {
     while (ps2_dread(&tmp))
       ;  // If this fails it basically halts the program forever
     ps2command(tmp);
@@ -165,25 +165,21 @@ void loop() {
   byte_2 = sensor_x & 0x00FF;
   byte_3 = sensor_y & 0x00FF;
 
-  //Debugging
-  /*
-  Serial.print("Byte 1: 0x");
-  Serial.print(byte_1, HEX);
-  Serial.print("\t Sensor X: ");
-  Serial.print(sensor_x, DEC);
-  Serial.print("\t Sensor Y: ");
-  Serial.print(sensor_y, DEC);
-  Serial.print("\n");
-  */
+  if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
+    ret = ps2_dwrite(byte_1);
+    ret = ps2_dwrite(byte_2);
+    ret = ps2_dwrite(byte_3);
+    ret = ps2_dwrite(0x00);
 
-  // Writes data to PS2 data out
-  if (byte_1 != byte_1 || byte_2 != byte_2 || byte_3 != byte_3) {
-    if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
-      ret = ps2_dwrite(byte_1);
-      ret = ps2_dwrite(byte_2);
-      ret = ps2_dwrite(byte_3);
-      ret = ps2_dwrite(0x00);
-    }
+    //Debugging
+
+    Serial.print("Byte 1: 0x");
+    Serial.print(byte_1, HEX);
+    Serial.print("\t Sensor X: ");
+    Serial.print(sensor_x, DEC);
+    Serial.print("\t Sensor Y: ");
+    Serial.print(sensor_y, DEC);
+    Serial.print("\n");
   }
 }
 
