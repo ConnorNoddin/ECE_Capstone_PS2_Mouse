@@ -30,11 +30,11 @@
 
 //Timings
 #define INIT_DELAY 500
-#define CLOCK_HALF 20
-#define CLOCK_FULL 40
-#define BYTE_DELAY 2000
-#define HOST_TIMEOUT 60  //30 is defauklt
-#define TIMEOUT 30
+#define CLOCK_HALF 25
+#define CLOCK_FULL 50
+#define BYTE_DELAY 1500    //1500 works good
+#define HOST_TIMEOUT 1000  //30 is defauklt
+#define TIMEOUT 1000
 
 #define SS 10  // SS pin on arduino. For nano 10 is default. Uno 3 is default
 
@@ -44,7 +44,8 @@ const int MIDDLE = 3;  // Middle mouse button
 const int RIGHT = 4;   // Right mouse button
 
 // GPIO pin assignments for PS/2 connection
-const int DATA_IN = 8;
+const int DATA_IN_A = A2;  //normally 8
+const int DATA_IN = 8;     //normally 8
 const int CLK_IN = 7;
 const int DATA_OUT = 6;
 const int CLK_OUT = 5;
@@ -71,7 +72,7 @@ void setup() {
   pinMode(RIGHT, INPUT);
 
   // In assignments for reading data and clock bus
-  pinMode(DATA_IN, INPUT);
+  pinMode(DATA_IN, INPUT);  //Maybe INPUT_PULLUP for each of these?
   pinMode(CLK_IN, INPUT);
 
   // Out assignments for controlling data and clock bus
@@ -101,13 +102,13 @@ void loop() {
 
   byte tmp = 0x00;  //Temporary byte from functions
 
-  int16_t sensor_x, sensor_y;  //Sensor x and y movement
-  byte x_sign, y_sign;         // Bytes just for memory efficiency
+  int16_t sensor_x = 0x00, sensor_y = 0x00;  //Sensor x and y movement
+  byte x_sign, y_sign;                       // Bytes just for memory efficiency
 
   int ret;
 
   // Check if host is trying to send commands
-  if ((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) {
+  if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW))) {
     while (ps2_dread(&tmp))
       ;  // If this fails it basically halts the program forever
     ps2command(tmp);
@@ -176,10 +177,13 @@ void loop() {
   */
 
   // Writes data to PS2 data out
-  if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
-    ret = ps2_dwrite(byte_1);
-    ret = ps2_dwrite(byte_2);
-    ret = ps2_dwrite(byte_3);
+  if (byte_1 != byte_1 || byte_2 != byte_2 || byte_3 != byte_3) {
+    if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
+      ret = ps2_dwrite(byte_1);
+      ret = ps2_dwrite(byte_2);
+      ret = ps2_dwrite(byte_3);
+      ret = ps2_dwrite(0x00);
+    }
   }
 }
 
@@ -222,6 +226,9 @@ int ps2_dwrite(byte ps2_Data) {
     return -2;
   }
 
+  //Serial.print("Command Wrote: 0x");
+  //Serial.println(ps2_Data, HEX);
+
   // First bit is always 0
   // INVERTED
   digitalWrite(DATA_OUT, HIGH);
@@ -250,7 +257,10 @@ int ps2_dwrite(byte ps2_Data) {
   digitalWrite(DATA_OUT, LOW);  // Always high
   ps2_clock();
 
-  //delayMicroseconds(BYTE_DELAY);  //Delay between bytes
+
+
+
+  delayMicroseconds(BYTE_DELAY);  //Delay between bytes
 
   return 0;
 }
@@ -269,9 +279,11 @@ int ps2_dread(byte *read_in) {
   // Timesouts if host has not sent for 30 ms
   // This is effectively the start bit
   unsigned long init = millis();
-  while ((digitalRead(DATA_IN) != LOW) || (digitalRead(CLK_IN) != HIGH)) {
-    if ((millis() - init) > HOST_TIMEOUT) return -1;
-    //Serial.println("Read failed, host timeout!");
+  while (((digitalRead(DATA_IN) != LOW) || (digitalRead(CLK_IN) != HIGH))) {
+    if ((millis() - init) > HOST_TIMEOUT) {
+      Serial.println("Read failed, host timeout!");
+      return -1;
+    }
   }
 
   //ps2_clock (); //Probably not needed
@@ -287,9 +299,9 @@ int ps2_dread(byte *read_in) {
 
     if (digitalRead(DATA_IN) == HIGH) {
       data = data | bit;
-      //calculated_parity = calculated_parity ^ 1;
+      calculated_parity = calculated_parity ^ 1;
       //Serial.print("1, ");
-      delayMicroseconds(100);  //there seems to be an issue after reading a 1
+      //delayMicroseconds(100);  //there seems to be an issue after reading a 1
 
     } else {
       //calculated_parity = calculated_parity ^ 0;
@@ -334,8 +346,8 @@ int ps2_dread(byte *read_in) {
   // Returns data to main loop
   *read_in = data & 0x00FF;
 
-  Serial.print("Command Received: 0x");
-  Serial.println(data, HEX);
+  //Serial.print("Command Received: 0x");
+  //Serial.println(data, HEX);
 
   //Parity check
   if (received_parity == calculated_parity) {
@@ -415,7 +427,8 @@ int ps2command(byte input) {
       break;
     case 0xF2:  //get device id
       ack();
-      ps2_dwrite(ID);
+      //while (ps2_dwrite(0x00) != 0)
+      ps2_dwrite(0x03);
       break;
     case 0xF0:  //set remote mode
       ack();
@@ -469,6 +482,7 @@ int ps2command(byte input) {
 void ack() {
   while (ps2_dwrite(ACK) != 0)
     ;  //0xFA
+  //ps2_dwrite(ACK);
 }
 
 byte get_button_states(void) {
