@@ -25,16 +25,17 @@
 
 // Misc Setup
 #define FORCE_ENABLE 0  //Good for debugging data packets. Will make most hosts not work
-#define CPI 500
+#define CPI 1000
 #define SERIAL_RATE 9600
 
 //Timings
 #define INIT_DELAY 500
-#define CLOCK_HALF 25
-#define CLOCK_FULL 50
-#define BYTE_DELAY 1500    //1500 works good
+#define CLOCK_HALF 20
+#define CLOCK_FULL 40
+#define BYTE_DELAY 2000    //1500 works good
 #define HOST_TIMEOUT 1000  //30 is defauklt
 #define TIMEOUT 1000
+#define DATA_DELAY 4  // Lower is smoother but less stable
 
 #define SS 10  // SS pin on arduino. For nano 10 is default. Uno 3 is default
 
@@ -108,7 +109,7 @@ void loop() {
   int ret;
 
   // Check if host is trying to send commands
-  if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED ==0) {
+  if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED == 0) {
     while (ps2_dread(&tmp))
       ;  // If this fails it basically halts the program forever
     ps2command(tmp);
@@ -169,10 +170,12 @@ void loop() {
     ret = ps2_dwrite(byte_1);
     ret = ps2_dwrite(byte_2);
     ret = ps2_dwrite(byte_3);
-    ret = ps2_dwrite(0x00);
+    //ret = ps2_dwrite(0x00); //if id is 0x03 use this byte
+
+    delay(DATA_DELAY);  // 500 ms delay for PS/2 standard
 
     //Debugging
-
+    /*
     Serial.print("Byte 1: 0x");
     Serial.print(byte_1, HEX);
     Serial.print("\t Sensor X: ");
@@ -180,6 +183,7 @@ void loop() {
     Serial.print("\t Sensor Y: ");
     Serial.print(sensor_y, DEC);
     Serial.print("\n");
+    */
   }
 }
 
@@ -252,9 +256,6 @@ int ps2_dwrite(byte ps2_Data) {
   // Stop bit is always 1
   digitalWrite(DATA_OUT, LOW);  // Always high
   ps2_clock();
-
-
-
 
   delayMicroseconds(BYTE_DELAY);  //Delay between bytes
 
@@ -424,7 +425,7 @@ int ps2command(byte input) {
     case 0xF2:  //get device id
       ack();
       //while (ps2_dwrite(0x00) != 0)
-      ps2_dwrite(0x03);
+      ps2_dwrite(0x00);  //0x03 works
       break;
     case 0xF0:  //set remote mode
       ack();
