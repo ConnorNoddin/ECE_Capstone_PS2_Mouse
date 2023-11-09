@@ -6,24 +6,24 @@ This repository contains the source code, PCB design files, photos, and various 
 
 The repository is organized into the following directories:
 
-### 1. Arduino C++ Files for PS/2 Mouse (arduino_code)
+### 1. Arduino C++ Files for PS/2 Mouse (main)
 
 This directory contains Arduino C++ code for interfacing with a PS/2 mouse. It allows you to read mouse movements and button presses. The code is well-documented, making it easy to understand and integrate into your own projects.
 
-### 2. Photos of the PS/2 Mouse Build (images)
+### 2. Photos of the PS/2 Mouse Build (Pictures)
 
 
 In this directory, you can find images of the PS/2 mouse build. These photos can help you visualize the setup and components used in the project.
 
-### 3. PCB Design Files (pcb_design)
+### 3. PCB Design Files (PCB_Files)
 
 This directory contains PCB design files for creating a custom PCB to interface with a PS/2 mouse. You can use software like KiCad, Eagle, or Altium to open and edit these files according to your requirements.
 
-### 4. Premade Sensor Arduino Libraries (sensor_libraries)
+### 4. Premade Sensor Arduino Libraries (Sensor_Files)
 
 Here, you'll find pre-made Arduino libraries for various sensors that you can use in your PS/2 mouse interface project. These libraries can help you easily integrate sensors with your project, expanding its functionality.
 
-### 5. Saved Oscilloscope Traces (oscilloscope_traces)
+### 5. Saved Oscilloscope Traces (Debugging_Waveforms)
 
 In this directory, you can find saved oscilloscope traces used for debugging the PS/2 mouse interface. These traces can be invaluable in identifying and troubleshooting any issues in your project.
 
