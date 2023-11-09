@@ -1,7 +1,5 @@
 # PS/2 Mouse Interface Project
 
-![PS/2 Mouse](images/ps2_mouse.jpg)
-
 This repository contains the source code, PCB design files, photos, and various resources for a PS/2 mouse project. The project is intended to help you create a PS/2 mouse using Arduino and build a custom PCB for this application.
 
 ## Project Structure
@@ -14,13 +12,12 @@ This directory contains Arduino C++ code for interfacing with a PS/2 mouse. It a
 
 ### 2. Photos of the PS/2 Mouse Build (images)
 
-![PS/2 Mouse Build](images/ps2_mouse_build.jpg)
 
 In this directory, you can find images of the PS/2 mouse build. These photos can help you visualize the setup and components used in the project.
 
 ### 3. PCB Design Files (pcb_design)
 
-This directory contains PCB design files for creating a custom PCB to interface with a PS/2 mouse. You can use software like KiCad or Eagle to open and edit these files according to your requirements.
+This directory contains PCB design files for creating a custom PCB to interface with a PS/2 mouse. You can use software like KiCad, Eagle, or Altium to open and edit these files according to your requirements.
 
 ### 4. Premade Sensor Arduino Libraries (sensor_libraries)
 
@@ -37,16 +34,16 @@ If you're new to this project, follow these steps to get started:
 1. Clone this repository to your local machine:
 
    ```bash
-   git clone https://github.com/yourusername/ps2-mouse-interface.git
+   git clone https://github.com/ConnorNoddin/ECE_Capstone_PS2_Mouse.git
    ```
 
-2. Explore the relevant directories based on your needs. The `arduino_code` directory is a good place to start for understanding how to interface with the PS/2 mouse using Arduino.
+2. Explore the relevant directories based on your needs. The `main` directory is a good place to start for understanding how to interface with the PS/2 mouse using Arduino.
 
-3. If you plan to build a custom PCB, open the PCB design files in the `pcb_design` directory and customize them for your specific application.
+3. If you plan to build a custom PCB, open the PCB design files in the `PCB_Files` directory and customize them for your specific application.
 
-4. To add additional sensors to your project, check the `sensor_libraries` directory for pre-made Arduino libraries.
+4. To add additional sensors to your project, check the `Sensor_Files` directory for pre-made Arduino libraries.
 
-5. If you encounter issues or need to debug your project, the `oscilloscope_traces` directory provides saved oscilloscope traces that can help you identify and resolve problems.
+5. If you encounter issues or need to debug your project, the `Debugging_Waveforms` directory provides saved oscilloscope traces that can help you identify and resolve problems.
 
 ## Contributing
 
