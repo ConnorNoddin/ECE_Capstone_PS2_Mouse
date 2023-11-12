@@ -44,8 +44,8 @@
 #define SERIAL_RATE 9600  // Bits/second
 
 //Timings - This is what affects the performance and stability of the mouse
-#define INIT_DELAY 2500  //Delay before sending first packets
-#define CLOCK_HALF 20   //10 - 16.7khz clock is standard
+#define INIT_DELAY 2500  //Delay before sending first packets... 2500 for USB adapter. 500 for motherboard
+#define CLOCK_HALF 20    //10 - 16.7khz clock is standard
 #define CLOCK_FULL 40
 #define BYTE_DELAY 2000    //1500 works good. Higher is more stable
 #define HOST_TIMEOUT 1000  //30 is default
