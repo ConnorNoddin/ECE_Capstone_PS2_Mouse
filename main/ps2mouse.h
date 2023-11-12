@@ -43,8 +43,8 @@
 #define CPI 1000          // Counts per inch of sensor
 #define SERIAL_RATE 9600  // Bits/second
 
-//Timings
-#define INIT_DELAY 500  //Delay before sending first packets
+//Timings - This is what affects the performance and stability of the mouse
+#define INIT_DELAY 2500  //Delay before sending first packets
 #define CLOCK_HALF 20   //10 - 16.7khz clock is standard
 #define CLOCK_FULL 40
 #define BYTE_DELAY 2000    //1500 works good. Higher is more stable
