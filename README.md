@@ -38,4 +38,4 @@ For those interested in replicating or modifying my PS/2 mouse, detailed instruc
 
 ## Contributing
 
-While this project was developed independently, I appreciate feedback and suggestions. If you identify any issues or have ideas for improvement, please open an issue or submit a pull request. Your input is valuable in enhancing the overall quality of the project.
+While this project was developed independently, I appreciate feedback and suggestions. If you identify any issues or have ideas for improvement, please open an issue or submit a pull request.
