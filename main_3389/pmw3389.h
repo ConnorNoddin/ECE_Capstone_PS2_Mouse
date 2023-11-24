@@ -71,7 +71,7 @@ void UpdatePointer(void);
 int convTwosComp(int b);
 void loop_sensor();
 
-
+//SS pin... 10 on mouse
 const int ncs = 10;  //This is the SPI "slave select" pin that the sensor is hooked up to
 
 byte initComplete=0;
@@ -375,7 +375,8 @@ void setup_sensor() {
   
   performStartup();  
   
-  delay(5000);
+  //This delay can be reduced... default is 5000
+  //delay(5000);
   
   initComplete=9;
 
