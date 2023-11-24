@@ -1,56 +1,41 @@
-# PS/2 Mouse Interface Project
+# PS/2 Mouse with ATMEGA328p
 
-This repository contains the source code, PCB design files, photos, and various resources for a PS/2 mouse project. The project is intended to help you create a PS/2 mouse using Arduino and build a custom PCB for this application.
+Welcome to the repository for my ATMEGA328p-based PS/2 mouse project, developed as part of my computer engineering capstone. This comprehensive collection encompasses the source code, PCB files, schematics, debugging waveforms, and images, providing a detailed insight into the design and implementation process. As a solo developer, I have meticulously crafted this PS/2 mouse, powered by the versatile ATMEGA328p microcontroller, to seamlessly operate over the PS/2 protocol. The project has been validated to work flawlessly with three different sensors: ADNS3050, PMW3360, and PMW3389.
 
-## Project Structure
+## Acknowledgments
 
-The repository is organized into the following directories:
+Special thanks go to Professors Andrew Sheaff and Nuri Emanetoglu for their guidance and support throughout the development of this capstone project.
 
-### 1. Arduino C++ Files for PS/2 Mouse (main)
+## Exploring the Project
 
-This directory contains Arduino C++ code for interfacing with a PS/2 mouse. It allows you to read mouse movements and button presses. The code is well-documented, making it easy to understand and integrate into your own projects.
+### 1. Debugging_Waveforms
+   - Dive into the intricacies of my debugging process with this directory. It hosts oscilloscope waveforms meticulously captured during the debugging phase, offering a detailed analysis of data and clock line voltages.
 
-### 2. Photos of the PS/2 Mouse Build (Pictures)
+### 2. PCB_Files
+   - Uncover the engineering behind the PS/2 mouse by exploring the Altium PCB files and schematics in this directory. These files serve as a foundation for further development, modification, or replication of the project.
 
+### 3. Pictures
+   - Immerse yourself in the visual journey of my project through the captivating images stored in this directory. These pictures provide a tangible representation of the final product, showcasing the physical embodiment of my ATMEGA328p-based PS/2 mouse.
 
-In this directory, you can find images of the PS/2 mouse build. These photos can help you visualize the setup and components used in the project.
+### 4. main_3050, main_3360, main_3389
+   - Delve into the heart of the project with these directories, each dedicated to the mouse code tailored for a specific sensor: ADNS3050, PMW3360, and PMW3389, respectively. Here, you will find firmware and related files, ensuring optimal performance for different sensor configurations.
 
-### 3. PCB Design Files (PCB_Files)
+## PS/2 Protocol Implementation
 
-This directory contains PCB design files for creating a custom PCB to interface with a PS/2 mouse. You can use software like KiCad, Eagle, or Altium to open and edit these files according to your requirements.
+This PS/2 mouse operates exclusively over the PS/2 protocol, and I have implemented the protocol thoroughly at the lowest level. The included code showcases my commitment to precision and reliability in interfacing with the PS/2 protocol, ensuring seamless communication between the mouse and the host system. The protocol is fully implemented, providing a robust foundation for reliable data exchange.
 
-### 4. Premade Sensor Arduino Libraries (Sensor_Files)
+## Project Validation
 
-Here, you'll find pre-made Arduino libraries for various sensors that you can use in your PS/2 mouse interface project. These libraries can help you easily integrate sensors with your project, expanding its functionality.
+This PS/2 mouse has undergone rigorous testing and empirical verification, ensuring its reliability and functionality. I take pride in presenting a project that not only meets but exceeds operational expectations, providing a robust and versatile solution for diverse applications.
 
-### 5. Saved Oscilloscope Traces (Debugging_Waveforms)
+## Code Modularity
 
-In this directory, you can find saved oscilloscope traces used for debugging the PS/2 mouse interface. These traces can be invaluable in identifying and troubleshooting any issues in your project.
+The source code for this PS/2 mouse is designed with modularity in mind, allowing for easy adaptation to different projects. The modular structure facilitates customization and integration into diverse applications. Feel free to explore and modify the code to suit your specific requirements.
 
 ## Getting Started
 
-If you're new to this project, follow these steps to get started:
-
-1. Clone this repository to your local machine:
-
-   ```bash
-   git clone https://github.com/ConnorNoddin/ECE_Capstone_PS2_Mouse.git
-   ```
-
-2. Explore the relevant directories based on your needs. The `main` directory is a good place to start for understanding how to interface with the PS/2 mouse using Arduino.
-
-3. If you plan to build a custom PCB, open the PCB design files in the `PCB_Files` directory and customize them for your specific application.
-
-4. To add additional sensors to your project, check the `Sensor_Files` directory for pre-made Arduino libraries.
-
-5. If you encounter issues or need to debug your project, the `Debugging_Waveforms` directory provides saved oscilloscope traces that can help you identify and resolve problems.
+For those interested in replicating or modifying my PS/2 mouse, detailed instructions can be found in the respective directories. The "PCB_Files" directory offers essential files for fabricating the circuit board. Be sure to review the documentation for a comprehensive understanding of the tools and components required.
 
 ## Contributing
 
-If you want to contribute to this project, feel free to open issues, submit pull requests, or provide suggestions. Your contributions are highly appreciated!
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Happy hacking! 🐭🔌🛠️
+While this project was developed independently, I appreciate feedback and suggestions. If you identify any issues or have ideas for improvement, please open an issue or submit a pull request.
