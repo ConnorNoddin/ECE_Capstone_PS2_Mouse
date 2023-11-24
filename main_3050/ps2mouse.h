@@ -47,7 +47,7 @@
 #define INIT_DELAY 2500  //Delay before sending first packets... 2500 for USB adapter. 500 for motherboard
 #define CLOCK_HALF 20    //10 - 16.7khz clock is standard
 #define CLOCK_FULL 40
-#define BYTE_DELAY 2000    //1500 works good. Higher is more stable
+#define BYTE_DELAY 3000    //1500 works good. Higher is more stable
 #define HOST_TIMEOUT 1000  //30 is default
 #define TIMEOUT 1000
 #define DATA_DELAY 4  // Lower is smoother but less stable

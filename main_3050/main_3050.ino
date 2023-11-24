@@ -59,14 +59,12 @@ void loop() {
   //int ret;
 
   // Check if host is trying to send commands
-  /*
   if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED == 0) {
     while (ps2_dread(&tmp))
       ;  // If this fails it halts the program
     ps2_command(tmp);
     if (tmp == ENABLE) DEVICE_ENABLED = 1;
   }
-  */
 
   tmp = get_button_states();  // Gets state of all three buttons
 
