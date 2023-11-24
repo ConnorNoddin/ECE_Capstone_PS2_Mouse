@@ -7,7 +7,6 @@
 #define PIN_NCS 10    //Digital Pin 10... SS
 #define PIN_MOTION 9  //Digital Pin 9 is free
 
-
 // Define all the registers
 #define PROD_ID 0x00
 #define REV_ID 0x01
@@ -52,8 +51,6 @@ void com_start() {
   digitalWrite(PIN_NCS, LOW);
 }
 
-
-
 byte Read(byte reg_addr) {
   digitalWrite(PIN_NCS, LOW);  //begin communication
   // send address of the register, with MSBit = 0 to say it's reading
@@ -68,7 +65,6 @@ byte Read(byte reg_addr) {
   return data;
 }
 
-
 void Write(byte reg_addr, byte data) {
   digitalWrite(PIN_NCS, LOW);
   //send address of the register, with MSBit = 1 to say it's writing
@@ -82,7 +78,6 @@ void Write(byte reg_addr, byte data) {
 
 void startup() {
   //--------Setup SPI Communication---------
-  Serial.begin(115200);
   /*
   byte out = 0;
   byte read = 0;
@@ -106,26 +101,12 @@ void startup() {
   delay(100);
 }
 
-
-
 int convTwosComp(int b) {  //Convert from 2's complement
   if (b & 0x80) {
     b = -1 * ((b ^ 0xff) + 1);
   }
   return b;
 }
-
-void getXY() {  //Prints out X and Y values to the serial terminal, use getX and getY sequentially for most operations
-  byte x = 0;
-  byte y = 0;
-  x = Read(0x03);
-  y = Read(0x04);
-  Serial.println("x");
-  Serial.println(convTwosComp(x));
-  Serial.println("y");
-  Serial.println(convTwosComp(y));
-}
-
 
 int getX() {  //returns the X acceleration value
   byte x = 0;
