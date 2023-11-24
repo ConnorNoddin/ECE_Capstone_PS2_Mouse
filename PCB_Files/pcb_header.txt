@@ -10,3 +10,12 @@ SS
 UNUSED (DIGITAL PIN 9)
 GND
 GND
+
+HEADER 1 ON PCB
+
+Left to Right
+
+VCC (orange)
+GND (red)
+DATA (black)
+CLK (yellow)
