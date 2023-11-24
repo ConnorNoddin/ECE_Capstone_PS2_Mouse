@@ -1,9 +1,9 @@
 #include <SPI.h>
 
 // SPI and misc pins for the ADNS
-#define PIN_SCLK SCK
-#define PIN_MISO MISO
-#define PIN_MOSI MOSI
+#define PIN_SCLK 13
+#define PIN_MISO 12
+#define PIN_MOSI 11
 #define PIN_NCS 10    //Digital Pin 10... SS
 #define PIN_MOTION 9  //Digital Pin 9 is free
 
@@ -98,6 +98,8 @@ void startup() {
   delay(100);                // wait for it to reboot
   Write(MOUSE_CTRL, 0x20);   //Setup Mouse Control
   Write(MOTION_CTRL, 0x00);  //Clear Motion Control register
+  delay(100);
+  Write(MISC_SETTINGS,B0000001);
   delay(100);
 }
 

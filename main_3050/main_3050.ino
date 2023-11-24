@@ -59,12 +59,14 @@ void loop() {
   //int ret;
 
   // Check if host is trying to send commands
+  /*
   if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED == 0) {
     while (ps2_dread(&tmp))
       ;  // If this fails it halts the program
     ps2_command(tmp);
     if (tmp == ENABLE) DEVICE_ENABLED = 1;
   }
+  */
 
   tmp = get_button_states();  // Gets state of all three buttons
 
@@ -115,6 +117,16 @@ void loop() {
   //Gets lower 8 bits of both sensor data for movement
   byte_2 = sensor_x & 0x00FF;
   byte_3 = sensor_y & 0x00FF;
+
+  /*
+  Serial.print("\n");
+  Serial.print("Sensor X: ");
+  Serial.print(sensor_x, DEC);
+  Serial.print("\t Sensor Y: ");
+  Serial.print(sensor_y, DEC);
+  Serial.print("\n");
+  delay(5);
+  */
 
   // Writes data to host
   if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
