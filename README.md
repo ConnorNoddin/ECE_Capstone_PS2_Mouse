@@ -1,6 +1,10 @@
 # PS/2 Mouse with ATMEGA328p
 
-Welcome to the repository for my ATMEGA328p-based PS/2 mouse project. This comprehensive collection encompasses the source code, PCB files, schematics, debugging waveforms, and images, providing a detailed insight into the design and implementation process. As a solo developer, I have meticulously crafted this PS/2 mouse, powered by the versatile ATMEGA328p microcontroller, to seamlessly operate over the PS/2 protocol. The project has been validated to work flawlessly with three different sensors: ADNS3050, PMW3360, and PMW3389.
+Welcome to the repository for my ATMEGA328p-based PS/2 mouse project, developed as part of my computer engineering capstone. This comprehensive collection encompasses the source code, PCB files, schematics, debugging waveforms, and images, providing a detailed insight into the design and implementation process. As a solo developer, I have meticulously crafted this PS/2 mouse, powered by the versatile ATMEGA328p microcontroller, to seamlessly operate over the PS/2 protocol. The project has been validated to work flawlessly with three different sensors: ADNS3050, PMW3360, and PMW3389.
+
+## Acknowledgments
+
+Special thanks go to Professors Andrew Sheaff and Nuri Emanetoglu for their guidance and support throughout the development of this capstone project.
 
 ## Exploring the Project
 
