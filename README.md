@@ -28,6 +28,10 @@ This PS/2 mouse operates exclusively over the PS/2 protocol, and I have implemen
 
 This PS/2 mouse has undergone rigorous testing and empirical verification, ensuring its reliability and functionality. I take pride in presenting a project that not only meets but exceeds operational expectations, providing a robust and versatile solution for diverse applications.
 
+## Code Modularity
+
+The source code for this PS/2 mouse is designed with modularity in mind, allowing for easy adaptation to different projects. The modular structure facilitates customization and integration into diverse applications. Feel free to explore and modify the code to suit your specific requirements.
+
 ## Getting Started
 
 For those interested in replicating or modifying my PS/2 mouse, detailed instructions can be found in the respective directories. The "PCB_Files" directory offers essential files for fabricating the circuit board. Be sure to review the documentation for a comprehensive understanding of the tools and components required.
