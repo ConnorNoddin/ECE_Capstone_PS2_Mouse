@@ -1,56 +1,33 @@
-# PS/2 Mouse Interface Project
+# PS/2 Mouse with ATMEGA328p
 
-This repository contains the source code, PCB design files, photos, and various resources for a PS/2 mouse project. The project is intended to help you create a PS/2 mouse using Arduino and build a custom PCB for this application.
+Welcome to the repository for our ATMEGA328p-based PS/2 mouse project. This comprehensive collection encompasses the source code, PCB files, schematics, debugging waveforms, and images, providing a holistic view of the design and implementation process. The PS/2 mouse, powered by the versatile ATMEGA328p microcontroller, has been meticulously crafted and validated to operate seamlessly with three different sensors: ADNS3050, PMW3360, and PMW3389.
 
-## Project Structure
+## Exploring the Project
 
-The repository is organized into the following directories:
+### 1. Debugging_Waveforms
+   - Dive into the intricacies of our debugging process with this directory. It hosts oscilloscope waveforms meticulously captured during the debugging phase, offering a detailed analysis of data and clock line voltages.
 
-### 1. Arduino C++ Files for PS/2 Mouse (main)
+### 2. PCB_Files
+   - Uncover the engineering behind the PS/2 mouse by exploring the Altium PCB files and schematics in this directory. These files serve as a foundation for further development, modification, or replication of the project.
 
-This directory contains Arduino C++ code for interfacing with a PS/2 mouse. It allows you to read mouse movements and button presses. The code is well-documented, making it easy to understand and integrate into your own projects.
+### 3. Pictures
+   - Immerse yourself in the visual journey of our project through the captivating images stored in this directory. These pictures provide a tangible representation of the final product, showcasing the physical embodiment of our ATMEGA328p-based PS/2 mouse.
 
-### 2. Photos of the PS/2 Mouse Build (Pictures)
+### 4. main_3050, main_3360, main_3389
+   - Delve into the heart of the project with these directories, each dedicated to the mouse code tailored for a specific sensor: ADNS3050, PMW3360, and PMW3389, respectively. Here, you will find firmware and related files, ensuring optimal performance for different sensor configurations.
 
+## Project Validation
 
-In this directory, you can find images of the PS/2 mouse build. These photos can help you visualize the setup and components used in the project.
-
-### 3. PCB Design Files (PCB_Files)
-
-This directory contains PCB design files for creating a custom PCB to interface with a PS/2 mouse. You can use software like KiCad, Eagle, or Altium to open and edit these files according to your requirements.
-
-### 4. Premade Sensor Arduino Libraries (Sensor_Files)
-
-Here, you'll find pre-made Arduino libraries for various sensors that you can use in your PS/2 mouse interface project. These libraries can help you easily integrate sensors with your project, expanding its functionality.
-
-### 5. Saved Oscilloscope Traces (Debugging_Waveforms)
-
-In this directory, you can find saved oscilloscope traces used for debugging the PS/2 mouse interface. These traces can be invaluable in identifying and troubleshooting any issues in your project.
+Our PS/2 mouse has undergone rigorous testing and empirical verification, ensuring its reliability and functionality. We take pride in presenting a project that not only meets but exceeds operational expectations, providing a robust and versatile solution for diverse applications.
 
 ## Getting Started
 
-If you're new to this project, follow these steps to get started:
-
-1. Clone this repository to your local machine:
-
-   ```bash
-   git clone https://github.com/ConnorNoddin/ECE_Capstone_PS2_Mouse.git
-   ```
-
-2. Explore the relevant directories based on your needs. The `main` directory is a good place to start for understanding how to interface with the PS/2 mouse using Arduino.
-
-3. If you plan to build a custom PCB, open the PCB design files in the `PCB_Files` directory and customize them for your specific application.
-
-4. To add additional sensors to your project, check the `Sensor_Files` directory for pre-made Arduino libraries.
-
-5. If you encounter issues or need to debug your project, the `Debugging_Waveforms` directory provides saved oscilloscope traces that can help you identify and resolve problems.
+For those interested in replicating or modifying our PS/2 mouse, detailed instructions can be found in the respective directories. The "PCB_Files" directory offers essential files for fabricating the circuit board. Be sure to review the documentation for a comprehensive understanding of the tools and components required.
 
 ## Contributing
 
-If you want to contribute to this project, feel free to open issues, submit pull requests, or provide suggestions. Your contributions are highly appreciated!
+We welcome contributions from the community! If you identify any issues or have suggestions for improvement, please open an issue or submit a pull request. Your input is valuable in enhancing the overall quality of the project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Happy hacking! 🐭🔌🛠️
+This project is licensed under the [MIT License](LICENSE.md). Refer to the [LICENSE.md](LICENSE.md) file for detailed information on usage and distribution rights.
