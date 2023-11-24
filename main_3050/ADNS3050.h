@@ -4,8 +4,8 @@
 #define PIN_SCLK SCK
 #define PIN_MISO MISO
 #define PIN_MOSI MOSI
-#define PIN_NCS 10 //Digital Pin 10... SS
-#define PIN_MOTION 9 //Digital Pin 9 is free
+#define PIN_NCS 10    //Digital Pin 10... SS
+#define PIN_MOTION 9  //Digital Pin 9 is free
 
 
 // Define all the registers
