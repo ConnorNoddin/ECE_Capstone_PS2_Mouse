@@ -99,7 +99,7 @@ void startup() {
   Write(MOUSE_CTRL, 0x20);   //Setup Mouse Control
   Write(MOTION_CTRL, 0x00);  //Clear Motion Control register
   delay(100);
-  Write(MISC_SETTINGS,B0000001);
+  Write(MISC_SETTINGS, B0000001);
   delay(100);
 }
 

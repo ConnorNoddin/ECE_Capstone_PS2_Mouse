@@ -50,7 +50,7 @@ Then, reads sensor and buttons. Finally sends 3 data packets to PS2_host.
 */
 void loop() {
   byte* data;  //3 data packets
-  byte tmp;                                  //Temporary byte from functions
+  byte tmp;    //Temporary byte from functions
 
   // Check if host is trying to send commands
   if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED == 0) {
