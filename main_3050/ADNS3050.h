@@ -1,14 +1,14 @@
 #ifndef ADNS3050_H_  //Guard
 #define ADNS3050_H_
 
-// SPI and misc pins for the ADNS
+// Pins used. These are default for the ATMEGA
 #define PIN_SCLK 13
 #define PIN_MISO 12
 #define PIN_MOSI 11
 #define PIN_NCS 10    //Digital Pin 10... SS
 #define PIN_MOTION 9  //Digital Pin 9 is free
 
-// Define all the registers
+// All registers for ADNS3050
 #define PROD_ID 0x00
 #define REV_ID 0x01
 #define MOTION_ST 0x02

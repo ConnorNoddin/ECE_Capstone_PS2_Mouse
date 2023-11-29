@@ -82,4 +82,4 @@ byte get_button_states(void);
 
 byte* get_bytes(void);
 
-#endif  // dictionary_H_
+#endif  // ps2mouse_H_
