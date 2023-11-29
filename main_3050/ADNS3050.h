@@ -1,3 +1,8 @@
+// Connor Noddin
+// ECE 406
+// Computer Engineering Capstone
+// ADNS3050.h
+
 #ifndef ADNS3050_H_  //Guard
 #define ADNS3050_H_
 

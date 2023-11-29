@@ -1,3 +1,8 @@
+// Connor Noddin
+// ECE 406
+// Computer Engineering Capstone
+// ps2mouse.h
+
 #ifndef ps2mouse_H_  //Guard
 #define ps2mouse_H_
 

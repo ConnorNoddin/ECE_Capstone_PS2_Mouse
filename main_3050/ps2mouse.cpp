@@ -1,3 +1,8 @@
+// Connor Noddin
+// ECE 406
+// Computer Engineering Capstone
+// ps2mouse.cpp
+
 #include "ps2mouse.h"
 #include <avr/pgmspace.h>
 #include <Arduino.h>
@@ -178,10 +183,8 @@ int ps2_command(byte input) {
   switch (input) {
     case RES:  //Resets mouse
       ack();
-      while (ps2_dwrite(BAT) != 0)
-        ;
-      while (ps2_dwrite(ID) != 0)
-        ;
+      while (ps2_dwrite(BAT) != 0);
+      while (ps2_dwrite(ID) != 0);
       break;
     case RESEND:  //Error occured
       ack();
@@ -222,12 +225,9 @@ int ps2_command(byte input) {
       break;
     case STATUS_REQ:  //Requests status of mouse
       ack();
-      while (ps2_dwrite(ID) != 0)
-        ;
-      while (ps2_dwrite(STAT_1) != 0)
-        ;
-      while (ps2_dwrite(STAT_2) != 0)
-        ;
+      while (ps2_dwrite(ID) != 0);
+      while (ps2_dwrite(STAT_1) != 0);
+      while (ps2_dwrite(STAT_2) != 0);
       break;
     case SET_RES:  //Sets resolution of sensor
       ack();
@@ -255,8 +255,7 @@ this must complete during the handshake. Consequently, this keeps
 attempts to do so until successfull.
 */
 void ack() {
-  while (ps2_dwrite(ACK) != 0)
-    ;  //0xFA
+  while (ps2_dwrite(ACK) != 0);  //0xFA
 }
 
 /*

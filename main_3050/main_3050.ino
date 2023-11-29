@@ -1,6 +1,7 @@
 // Connor Noddin
 // ECE 406
 // Computer Engineering Capstone
+// maine_3050.cpp
 
 #include <SPI.h>
 #include <avr/pgmspace.h>
@@ -37,11 +38,9 @@ void setup() {
   startup();  // Begin ADNS 3050 sensor
 
   // Write self test passed
-  while (ps2_dwrite(BAT) != 0)
-    ;
+  while (ps2_dwrite(BAT) != 0);
   // Write mouse ID
-  while (ps2_dwrite(ID) != 0)
-    ;
+  while (ps2_dwrite(ID) != 0);
 }
 
 /*
@@ -54,8 +53,7 @@ void loop() {
 
   // Check if host is trying to send commands
   if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED == 0) {
-    while (ps2_dread(&tmp))
-      ;  // If this fails it halts the program
+    while (ps2_dread(&tmp));  // If this fails it halts the program
     ps2_command(tmp);
     if (tmp == ENABLE) DEVICE_ENABLED = 1;
   }

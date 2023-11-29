@@ -1,13 +1,24 @@
+// Connor Noddin
+// ECE 406
+// Computer Engineering Capstone
+// ADNS3050.cpp
+
 #include <SPI.h>
 #include "ADNS3050.h"
 
-// Start communication on SS pin
+/* 
+ Description: Beings communications using
+ SS/NCS pin
+*/
 void com_start() {
   digitalWrite(PIN_NCS, HIGH);
   delay(20);
   digitalWrite(PIN_NCS, LOW);
 }
 
+/* 
+ Description: Reads a register from the ADNS3050 sensor
+*/
 byte Read(byte reg_addr) {
   digitalWrite(PIN_NCS, LOW);  //begin communication
   // send address of the register, with MSBit = 0 to say it's reading
@@ -22,6 +33,9 @@ byte Read(byte reg_addr) {
   return data;
 }
 
+/* 
+ Description: Writes to a register on the ADNS3050
+*/
 void Write(byte reg_addr, byte data) {
   digitalWrite(PIN_NCS, LOW);
   //send address of the register, with MSBit = 1 to say it's writing
@@ -33,6 +47,9 @@ void Write(byte reg_addr, byte data) {
   delayMicroseconds(30);
 }
 
+/* 
+ Description: Starup protocol. Must be run to initialize sensor
+*/
 void startup() {
   //--------Setup SPI Communication---------
   /*
@@ -60,6 +77,10 @@ void startup() {
   delay(100);
 }
 
+/* 
+ Description: Convert register value from 2s complement to a regular
+ 32 bit integer
+*/
 int convTwosComp(int b) {  //Convert from 2's complement
   if (b & 0x80) {
     b = -1 * ((b ^ 0xff) + 1);
@@ -67,12 +88,18 @@ int convTwosComp(int b) {  //Convert from 2's complement
   return b;
 }
 
+/* 
+ Description: Reads X movement from sensor register
+*/
 int getX() {  //returns the X acceleration value
   byte x = 0;
   x = Read(0x03);
   return (convTwosComp(x));
 }
 
+/* 
+ Description: Reads Y movement from sensor register
+*/
 int getY() {  //returns the Y acceleration value
   byte y = 0;
   y = Read(0x04);
