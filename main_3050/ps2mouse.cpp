@@ -1,6 +1,8 @@
 #include "ps2mouse.h"
 #include <avr/pgmspace.h>
 #include <Arduino.h>
+#include "ADNS3050.h"
+
 
 /* 
  Description: Sets the clock to 1, then back to 0 after a delay 
@@ -77,7 +79,7 @@ Description: Reads 11 bit data packet from PS2 data line.
 Also sends ACK bit, for a total 12 bit packet. This also
 detects if the host timeouts
 */
-int ps2_dread(byte *read_in) {
+int ps2_dread(byte* read_in) {
   unsigned int data = 0x00;
   unsigned int bit = 0x01;
 
@@ -294,4 +296,72 @@ byte get_button_states(void) {
   }
 
   return buttons;
+}
+
+/*
+Description: Returns 3 bytes. First is control, second is X movement, third
+is Y movement
+*/
+byte* get_bytes(void) {
+
+  byte tmp;                                  //Temporary byte from functions
+  int sensor_x, sensor_y;                    //Sensor x and y movement
+  static byte data[3];                       //3 data packets
+  byte byte_1 = BYTE_1_BIT, byte_2, byte_3;  // 3 bytes for PS/2 packet
+
+  tmp = get_button_states();  // Gets state of all three buttons
+
+  byte_1 = byte_1 | tmp;  //Saves states to byte 1
+
+  // Code for sensor
+  sensor_x = getX();  //Extract change in x
+  sensor_y = getY();  //Extract change in y
+
+  //Sets sign bits from sensor
+  if (sensor_x < 0)
+    byte_1 = byte_1 | X_SIGN;
+  else
+    byte_1 = byte_1 & ~X_SIGN;
+
+  if (sensor_y < 0)
+    byte_1 = byte_1 | Y_SIGN;
+  else
+    byte_1 = byte_1 & ~Y_SIGN;
+
+  //Sets overflow bits from sensor in 2s compliment
+  if (sensor_x > 255) {
+    byte_1 = byte_1 | X_OVERFLOW;
+    sensor_x = 0xFF;
+  } else {
+    byte_1 = byte_1 & ~X_OVERFLOW;
+  }
+  if (sensor_x < -255) {
+    byte_1 = byte_1 | X_OVERFLOW;
+    sensor_x = 0x01;  //2s compliment, sign bit above
+  } else {
+    byte_1 = byte_1 & ~X_OVERFLOW;
+  }
+
+  if (sensor_y > 255) {
+    byte_1 = byte_1 | Y_OVERFLOW;
+    sensor_y = 0xFF;
+  } else {
+    byte_1 = byte_1 & ~Y_OVERFLOW;
+  }
+  if (sensor_y < -255) {
+    byte_1 = byte_1 | Y_OVERFLOW;
+    sensor_x = 0x01;  //2s compliment, sign bit above
+  } else {
+    byte_1 = byte_1 & ~Y_OVERFLOW;
+  }
+
+  //Gets lower 8 bits of both sensor data for movement
+  byte_2 = sensor_x & 0x00FF;
+  byte_3 = sensor_y & 0x00FF;
+
+  data[0] = byte_1;
+  data[1] = byte_2;
+  data[2] = byte_3;
+
+  return data;
 }

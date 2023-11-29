@@ -70,7 +70,7 @@ int ps2_clock(void);
 
 int ps2_dwrite(byte ps2_Data);
 
-int ps2_dread(byte *read_in);
+int ps2_dread(byte* read_in);
 
 int ps2_command(byte input);
 
@@ -79,5 +79,7 @@ void ack();
 int parity(byte p_check);
 
 byte get_button_states(void);
+
+byte* get_bytes(void);
 
 #endif  // dictionary_H_

@@ -4,8 +4,8 @@
 
 #include <SPI.h>
 #include <avr/pgmspace.h>
-#include "ADNS3050.h"
 #include "ps2mouse.h"
+#include "ADNS3050.h"
 
 // Allows device to send packets
 int DEVICE_ENABLED = 0;  //Flag for if host sent device enabled signal
@@ -49,14 +49,8 @@ Description: Runs indefinitely. Establishes handshake with PS2_host.
 Then, reads sensor and buttons. Finally sends 3 data packets to PS2_host.
 */
 void loop() {
-  // Bit 3 is always 1 for byte 1
-  byte byte_1 = BYTE_1_BIT, byte_2, byte_3;  // 3 bytes for PS/2 packet
-
-  byte tmp;  //Temporary byte from functions
-
-  int sensor_x, sensor_y;  //Sensor x and y movement
-
-  //int ret;
+  byte* data;  //3 data packets
+  byte tmp;                                  //Temporary byte from functions
 
   // Check if host is trying to send commands
   if (((digitalRead(DATA_IN) == LOW) || (digitalRead(CLK_IN) == LOW)) && DEVICE_ENABLED == 0) {
@@ -65,56 +59,6 @@ void loop() {
     ps2_command(tmp);
     if (tmp == ENABLE) DEVICE_ENABLED = 1;
   }
-
-  tmp = get_button_states();  // Gets state of all three buttons
-
-  byte_1 = byte_1 | tmp;  //Saves states to byte 1
-
-  // Code for sensor
-  sensor_x = getX();  //Extract change in x
-  sensor_y = getY();  //Extract change in y
-
-  //Sets sign bits from sensor
-  if (sensor_x < 0)
-    byte_1 = byte_1 | X_SIGN;
-  else
-    byte_1 = byte_1 & ~X_SIGN;
-
-  if (sensor_y < 0)
-    byte_1 = byte_1 | Y_SIGN;
-  else
-    byte_1 = byte_1 & ~Y_SIGN;
-
-  //Sets overflow bits from sensor in 2s compliment
-  if (sensor_x > 255) {
-    byte_1 = byte_1 | X_OVERFLOW;
-    sensor_x = 0xFF;
-  } else {
-    byte_1 = byte_1 & ~X_OVERFLOW;
-  }
-  if (sensor_x < -255) {
-    byte_1 = byte_1 | X_OVERFLOW;
-    sensor_x = 0x01;  //2s compliment, sign bit above
-  } else {
-    byte_1 = byte_1 & ~X_OVERFLOW;
-  }
-
-  if (sensor_y > 255) {
-    byte_1 = byte_1 | Y_OVERFLOW;
-    sensor_y = 0xFF;
-  } else {
-    byte_1 = byte_1 & ~Y_OVERFLOW;
-  }
-  if (sensor_y < -255) {
-    byte_1 = byte_1 | Y_OVERFLOW;
-    sensor_x = 0x01;  //2s compliment, sign bit above
-  } else {
-    byte_1 = byte_1 & ~Y_OVERFLOW;
-  }
-
-  //Gets lower 8 bits of both sensor data for movement
-  byte_2 = sensor_x & 0x00FF;
-  byte_3 = sensor_y & 0x00FF;
 
   /*
   Serial.print("\n");
@@ -128,13 +72,16 @@ void loop() {
 
   // Writes data to host
   if (DEVICE_ENABLED == 1 || FORCE_ENABLE == 1) {
-    ps2_dwrite(byte_1);
-    ps2_dwrite(byte_2);
-    ps2_dwrite(byte_3);
+
+    data = get_bytes();  // Gets all data from sensors
+
+    //Writes to DATA and CLK lines
+    ps2_dwrite(data[0]);
+    ps2_dwrite(data[1]);
+    ps2_dwrite(data[2]);
 
     delay(DATA_DELAY);  // Delay between bytes. Increases stability
 
-    //Debugging
     /*
     Serial.print("Byte 1: 0x");
     Serial.print(byte_1, HEX);

@@ -1,4 +1,5 @@
-#include <SPI.h>
+#ifndef ADNS3050_H_  //Guard
+#define ADNS3050_H_
 
 // SPI and misc pins for the ADNS
 #define PIN_SCLK 13
@@ -44,80 +45,18 @@
 #define AUTO_LED_CONTROL 0x43
 #define REST_MODE_CONFIG 0x45
 
+void com_start();
 
-void com_start() {
-  digitalWrite(PIN_NCS, HIGH);
-  delay(20);
-  digitalWrite(PIN_NCS, LOW);
-}
+byte Read(byte reg_addr);
 
-byte Read(byte reg_addr) {
-  digitalWrite(PIN_NCS, LOW);  //begin communication
-  // send address of the register, with MSBit = 0 to say it's reading
-  SPI.transfer(reg_addr & 0x7f);
-  delayMicroseconds(100);
-  // read data
-  byte data = SPI.transfer(0);
-  delayMicroseconds(30);
-  digitalWrite(PIN_NCS, HIGH);  //end communication
-  delayMicroseconds(30);
+void Write(byte reg_addr, byte data);
 
-  return data;
-}
+void startup();
 
-void Write(byte reg_addr, byte data) {
-  digitalWrite(PIN_NCS, LOW);
-  //send address of the register, with MSBit = 1 to say it's writing
-  SPI.transfer(reg_addr | 0x80);
-  //send data
-  SPI.transfer(data);
-  delayMicroseconds(30);
-  digitalWrite(PIN_NCS, HIGH);  //end communication
-  delayMicroseconds(30);
-}
+int convTwosComp(int b);
 
-void startup() {
-  //--------Setup SPI Communication---------
-  /*
-  byte out = 0;
-  byte read = 0;
-  byte bit = 0;
-  */
-  pinMode(PIN_MISO, INPUT);
-  pinMode(PIN_NCS, OUTPUT);
-  SPI.begin();
-  // set the details of the communication
-  SPI.setBitOrder(MSBFIRST);             // transimission order of bits
-  SPI.setDataMode(SPI_MODE3);            // sampling on rising edge
-  SPI.setClockDivider(SPI_CLOCK_DIV16);  // 16MHz/16 = 1MHz
-  delay(10);
+int getX();
 
-  //----------------- Power Up and config ---------------
-  com_start();
-  Write(RESET, 0x5a);        // force reset
-  delay(100);                // wait for it to reboot
-  Write(MOUSE_CTRL, 0x20);   //Setup Mouse Control
-  Write(MOTION_CTRL, 0x00);  //Clear Motion Control register
-  delay(100);
-  Write(MISC_SETTINGS,B0000001);
-  delay(100);
-}
+int getY();
 
-int convTwosComp(int b) {  //Convert from 2's complement
-  if (b & 0x80) {
-    b = -1 * ((b ^ 0xff) + 1);
-  }
-  return b;
-}
-
-int getX() {  //returns the X acceleration value
-  byte x = 0;
-  x = Read(0x03);
-  return (convTwosComp(x));
-}
-
-int getY() {  //returns the Y acceleration value
-  byte y = 0;
-  y = Read(0x04);
-  return (convTwosComp(y));
-}
+#endif  // ADNS3050_H_
