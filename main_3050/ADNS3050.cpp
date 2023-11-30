@@ -73,7 +73,9 @@ void startup() {
   Write(MOUSE_CTRL, 0x20);   //Setup Mouse Control
   Write(MOTION_CTRL, 0x00);  //Clear Motion Control register
   delay(100);
-  Write(MISC_SETTINGS, B0000001);
+  Write(MISC_SETTINGS, B0000001); // Liftoff detection disable
+  delay(100);
+  Write(MOUSE_CTRL,B11000); // 2000 DPI
   delay(100);
 }
 
