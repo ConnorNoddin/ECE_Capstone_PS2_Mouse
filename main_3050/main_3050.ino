@@ -1,7 +1,7 @@
 // Connor Noddin
 // ECE 406
 // Computer Engineering Capstone
-// maine_3050.cpp
+// main_3050.ino
 
 #include <SPI.h>
 #include <avr/pgmspace.h>
